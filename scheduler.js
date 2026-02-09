@@ -10,7 +10,8 @@ const startScheduler = () => {
             const result = await fetchAllStockFromAutoTrader();
             console.log(`[${new Date().toISOString()}] ✅ Scheduled AutoTrader sync completed successfully. Processed: ${result?.totalVehicles || 0} items.`);
         } catch (error) {
-            console.error(`[${new Date().toISOString()}] ❌ Scheduled AutoTrader sync failed:`, error);
+            console.error(`[${new Date().toISOString()}] ❌ Scheduled AutoTrader sync failed:`, error.message);
+            console.error('Error stack:', error.stack);
         }
     });
 
