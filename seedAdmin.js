@@ -15,6 +15,8 @@ const importData = async () => {
             username: 'admin',
             password: 'password123', // Default password
             role: 'admin',
+            email: 'admin@hestonautomotive.com',
+            phoneNumber: '07000000000'
         });
 
         await adminUser.save();
