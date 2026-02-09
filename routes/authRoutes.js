@@ -130,6 +130,47 @@ router.post('/staff', protect, admin, async (req, res) => {
     });
 
     if (user) {
+        // Send welcome email to new staff member
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const frontendUrl = process.env.FRONTEND_URL || 'https://car-video-frontend.vercel.app';
+
+        try {
+            await resend.emails.send({
+                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                to: [email],
+                subject: 'Welcome to Heston Automotive - Account Created',
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; color: #333;">
+                        <h2 style="color: #2563EB;">Welcome to Heston Automotive!</h2>
+                        <p>Your staff account has been successfully created. Here are your login credentials:</p>
+                        
+                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <p style="margin: 5px 0;"><strong>Username:</strong> ${username}</p>
+                            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> ${password}</p>
+                            <p style="margin: 5px 0;"><strong>Login URL:</strong> <a href="${frontendUrl}" style="color: #2563EB;">${frontendUrl}</a></p>
+                        </div>
+                        
+                        <p><strong>Important:</strong> For security reasons, we recommend changing your password after your first login.</p>
+                        
+                        <h3 style="color: #2563EB;">How to Change Your Password:</h3>
+                        <ol>
+                            <li>Go to <a href="${frontendUrl}/forgot-password" style="color: #2563EB;">Forgot Password</a></li>
+                            <li>Enter your email address</li>
+                            <li>Follow the instructions in the email to reset your password</li>
+                        </ol>
+                        
+                        <p>If you have any questions or need assistance, please contact your administrator.</p>
+                        
+                        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">This is an automated message. Please do not reply to this email.</p>
+                    </div>
+                `
+            });
+            console.log(`Welcome email sent to ${email}`);
+        } catch (emailError) {
+            console.error('Failed to send welcome email:', emailError);
+            // Don't fail the request if email fails, just log it
+        }
+
         res.status(201).json({
             _id: user._id,
             username: user.username,
