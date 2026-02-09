@@ -21,7 +21,10 @@ const generateToken = (id) => {
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    const user = await User.findOne({ username });
+    // Case-insensitive username lookup
+    const user = await User.findOne({
+        username: { $regex: new RegExp(`^${username}$`, 'i') }
+    });
 
     if (user && (await user.matchPassword(password))) {
         // Check for 2FA
