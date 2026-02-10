@@ -42,7 +42,7 @@ export async function fetchAllStockFromAutoTrader() {
 
         do {
             const stockResponse = await axios.get(
-                `https://api-sandbox.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=100`,
+                `https://api-sandbox.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=100&features=true`,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -52,48 +52,14 @@ export async function fetchAllStockFromAutoTrader() {
             );
 
             if (stockResponse.data.results) {
-                // Enrich stock data with detailed specs (Features, Metrics)
-                const enrichedResults = await Promise.all(stockResponse.data.results.map(async (vehicle) => {
-                    try {
-                        const reg = vehicle.vehicle.registration;
-                        if (!reg) return vehicle; // Skip if no reg
-
-                        // Fetch details from /vehicles API
-                        const detailsResponse = await axios.get(
-                            `https://api-sandbox.autotrader.co.uk/vehicles?registration=${reg}&advertiserId=${advertiserId}&features=true&vehicleMetrics=true&techSpecs=true`,
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${accessToken}`,
-                                    Accept: 'application/json'
-                                }
-                            }
-                        );
-
-                        // Merge details into the vehicle object
-                        // We preserve the original 'vehicle' structure but add 'features', 'techSpecs', 'greenData' if available
-                        const details = detailsResponse.data;
-
-                        return {
-                            ...vehicle,
-                            features: details.features || [],
-                            techSpecs: details.techSpecs || {}, // Assuming techSpecs comes back if available, or we parse from 'vehicle'
-                            vehicleMetrics: details.vehicleMetrics || {},
-                            // Ensure core vehicle data is as complete as possible
-                            vehicle: { ...vehicle.vehicle, ...details.vehicle }
-                        };
-                    } catch (err) {
-                        console.error(`Failed to fetch details for ${vehicle.vehicle?.registration}:`, err.message);
-                        return vehicle; // Return basic data if enrichment fails
-                    }
-                }));
-
-                allStock = [...allStock, ...enrichedResults];
+                // Stock API with features=true already includes all necessary data
+                allStock = [...allStock, ...stockResponse.data.results];
             }
 
             // Update pagination info
             if (stockResponse.data.page) {
                 totalPages = stockResponse.data.page.totalPages || 1;
-                console.log(`Fetched and enriched page ${currentPage} of ${totalPages} (${stockResponse.data.results?.length || 0} vehicles)`);
+                console.log(`Fetched page ${currentPage} of ${totalPages} (${stockResponse.data.results?.length || 0} vehicles)`);
             }
 
             currentPage++;
@@ -195,14 +161,14 @@ router.get('/sync-status', protect, async (req, res) => {
     }
 });
 
-// @desc    Lookup vehicle by registration (Local Cache -> AutoTrader API)
+// @desc    Lookup vehicle by registration (Local Cache Only)
 // @route   GET /api/autotrader/lookup/:registration
 // @access  Private
 router.get('/lookup/:registration', protect, async (req, res) => {
     const registration = req.params.registration.replace(/\s/g, '').toUpperCase();
 
     try {
-        // 1. Check Local Cache (Stock Collection)
+        // Check Local Cache (Stock Collection)
         const advertiserId = process.env.AUTOTRADER_ADVERTISER_ID;
         const stockRecord = await Stock.findOne({ advertiserId });
 
@@ -213,7 +179,6 @@ router.get('/lookup/:registration', protect, async (req, res) => {
 
             if (localVehicle) {
                 console.log(`Vehicle ${registration} found in local cache.`);
-                // Return in a format the frontend expects (matching Stock.js handleDirectUpload logic)
                 return res.json({
                     source: 'local',
                     vehicle: localVehicle.vehicle,
@@ -223,58 +188,10 @@ router.get('/lookup/:registration', protect, async (req, res) => {
             }
         }
 
-        // 2. If not in local cache, fetch from AutoTrader API
-        console.log(`Vehicle ${registration} not in local cache. Fetching from AutoTrader API...`);
-
-        const key = process.env.AUTOTRADER_KEY;
-        const secret = process.env.AUTOTRADER_SECRET;
-
-        // Get Access Token
-        const tokenResponse = await axios.post(
-            'https://api-sandbox.autotrader.co.uk/authenticate',
-            new URLSearchParams({ key, secret }),
-            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-        );
-        const accessToken = tokenResponse.data.access_token;
-
-        // Fetch Vehicle Metrics/Details directly
-        // Note: The main /stock endpoint lists vehicles. To lookup a specific one not in stock, 
-        // we might use /vehicles?registration=... if available and permitted.
-        // Based on the 'fetchAllStockFromAutoTrader' logic, we use /vehicles endpoint for enrichment.
-        // Let's try to fetch it directly.
-
-        try {
-            const detailsResponse = await axios.get(
-                `https://api-sandbox.autotrader.co.uk/vehicles?registration=${registration}&advertiserId=${advertiserId}&features=true&vehicleMetrics=true&techSpecs=true`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        Accept: 'application/json'
-                    }
-                }
-            );
-
-            const data = detailsResponse.data;
-
-            // Construct the response object similar to the stock object structure
-            const vehicleData = {
-                vehicle: data.vehicle,
-                features: data.features || [],
-                techSpecs: data.techSpecs || {},
-                vehicleMetrics: data.vehicleMetrics || {}
-            };
-
-            return res.json({
-                source: 'api',
-                ...vehicleData
-            });
-
-        } catch (apiError) {
-            if (apiError.response && apiError.response.status === 404) {
-                return res.status(404).json({ message: 'Vehicle not found in AutoTrader stock' });
-            }
-            throw apiError;
-        }
+        // Vehicle not found in local cache
+        return res.status(404).json({
+            message: 'Vehicle not found in stock. Please sync stock first or check registration number.'
+        });
 
     } catch (error) {
         console.error(`Lookup failed for ${registration}:`, error.message);
