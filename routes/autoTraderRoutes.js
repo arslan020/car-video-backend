@@ -188,9 +188,85 @@ router.get('/lookup/:registration', protect, async (req, res) => {
             }
         }
 
-        // Vehicle not found in local cache
+        // Vehicle not found in local cache - Try UKVD Fallback
+        console.log(`Vehicle ${registration} not in local stock. Attempting UKVD lookup...`);
+
+        const ukvdKey = process.env.UKVD_API_KEY;
+        const ukvdPackage = process.env.UKVD_PACKAGE || 'VehicleDetails';
+        const ukvdEndpoint = process.env.UKVD_ENDPOINT || 'https://uk.api.vehicledataglobal.com/r2/lookup';
+
+        if (ukvdKey) {
+            try {
+                // Parameters based on user's Java example
+                const params = {
+                    apiKey: ukvdKey,
+                    packageName: ukvdPackage,
+                    vrm: registration
+                };
+
+                console.log(`Calling UKVD Endpoint: ${ukvdEndpoint}`);
+
+                const ukvdResponse = await axios.get(ukvdEndpoint, { params });
+                const data = ukvdResponse.data;
+
+                // Check for success - API uses capital case field names
+                if (data && data.Results && data.Results.VehicleDetails) {
+                    const vIdent = data.Results.VehicleDetails.VehicleIdentification || {};
+                    const vTech = data.Results.VehicleDetails.DvlaTechnicalDetails || {};
+                    const vHistory = data.Results.VehicleDetails.VehicleHistory || {};
+                    const vStatus = data.Results.VehicleDetails.VehicleStatus || {};
+
+                    // Normalize to match AutoTrader structure
+                    const vehicle = {
+                        registration: vIdent.Vrm || registration,
+                        make: vIdent.DvlaMake,
+                        model: vIdent.DvlaModel,
+                        generation: vIdent.DvlaModel,
+                        derivative: vIdent.DvlaBodyType || '',
+                        vehicleType: 'Car',
+                        trim: vIdent.DvlaModel,
+                        bodyType: vIdent.DvlaBodyType,
+                        fuelType: vIdent.DvlaFuelType,
+                        transmissionType: '',
+                        drivetrain: '',
+                        colour: vHistory.ColourDetails?.CurrentColour || '',
+                        engineCapacityCC: vTech.EngineCapacityCc,
+                        enginePowerBHP: vTech.MaxNetPowerKw ? Math.round(vTech.MaxNetPowerKw * 1.341) : null,
+                        emissionClass: 'Euro 6',
+                        co2EmissionGPKM: vStatus.VehicleExciseDutyDetails?.DvlaCo2,
+                        topSpeedMPH: null,
+                        accelerationSeconds: null,
+                        doors: null,
+                        seats: vTech.NumberOfSeats,
+                        firstRegistrationDate: vIdent.DateFirstRegistered,
+                        yearOfManufacture: vIdent.YearOfManufacture,
+                        odometerReadingMiles: null,
+                        price: null,
+                        images: []
+                    };
+
+                    console.log('UKVD Lookup Successful:', vehicle.make, vehicle.model);
+
+                    return res.json({
+                        source: 'ukvd',
+                        vehicle: vehicle,
+                        features: [],
+                        media: { images: [] }
+                    });
+                } else if (data && data.ResponseInformation) {
+                    console.warn('UKVD Lookup Failed:', data.ResponseInformation.StatusMessage);
+                } else {
+                    console.warn('UKVD Lookup Failed: Invalid Response Structure');
+                }
+
+            } catch (ukvdError) {
+                console.error('UKVD API Error:', ukvdError.message);
+                // Continue to 404
+            }
+        }
+
         return res.status(404).json({
-            message: 'Vehicle not found in stock. Please sync stock first or check registration number.'
+            message: 'Vehicle not found in stock or external database.'
         });
 
     } catch (error) {

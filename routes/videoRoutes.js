@@ -4,55 +4,170 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { uploadToCloudflareStream } from '../utils/cloudflareStream.js';
+import fs from 'fs';
+import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const router = express.Router();
 
-// Cloudinary config
+// Cloudinary config (keeping for backward compatibility)
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'car-appraisals',
-        resource_type: 'video',
+// Use local storage for temporary file uploads (before sending to Cloudflare Stream)
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 3 * 1024 * 1024 * 1024 // 3GB limit
+    }
+});
+
+// Helper function to extract YouTube video ID from URL
+const extractYouTubeId = (input) => {
+    if (!input) return null;
+
+    // Remove whitespace
+    input = input.trim();
+
+    // If it's already just an ID (11 characters, alphanumeric with - and _)
+    if (/^[a-zA-Z0-9_-]{11}$/.test(input)) {
+        return input;
+    }
+
+    // Match various YouTube URL formats
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]{11})/
+    ];
+
+    for (const pattern of patterns) {
+        const match = input.match(pattern);
+        if (match && match[1]) {
+            return match[1];
+        }
+    }
+
+    return null;
+};
 
 // @desc    Upload a video
 // @route   POST /api/videos
 // @access  Private/Staff
-router.post('/', protect, upload.single('video'), async (req, res) => {
+router.post('/', protect, (req, res, next) => {
+    // Only use multer for multipart/form-data (file uploads)
+    // Skip multer for application/json (YouTube URL uploads)
+    const contentType = req.headers['content-type'] || '';
+
+    if (contentType.includes('application/json')) {
+        // Skip multer for JSON requests (YouTube URLs)
+        return next();
+    }
+
+    // Use multer for file uploads
+    upload.single('video')(req, res, next);
+}, async (req, res) => {
+    let tempFilePath = null;
+
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'No video file provided' });
+        console.log('=== VIDEO ROUTE HIT ===');
+        console.log('Content-Type:', req.headers['content-type']);
+        console.log('Has file:', !!req.file);
+        console.log('youtubeUrl:', req.body?.youtubeUrl);
+
+        const { youtubeUrl } = req.body || {};
+
+        // Check if YouTube URL is provided
+        if (youtubeUrl) {
+            const youtubeVideoId = extractYouTubeId(youtubeUrl);
+
+            if (!youtubeVideoId) {
+                return res.status(400).json({ message: 'Invalid YouTube URL or video ID' });
+            }
+
+            // Create video with YouTube source
+            const video = await Video.create({
+                uploadedBy: req.user._id,
+                videoUrl: `https://www.youtube.com/embed/${youtubeVideoId}`,
+                videoSource: 'youtube',
+                youtubeVideoId: youtubeVideoId,
+                title: req.body.title || 'YouTube Video',
+                registration: req.body.registration || undefined,
+                make: req.body.make || undefined,
+                model: req.body.model || undefined,
+                vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined
+            });
+
+            return res.status(201).json(video);
         }
 
+        // Handle file upload to Cloudflare Stream
+        if (!req.file) {
+            return res.status(400).json({ message: 'No video file or YouTube URL provided' });
+        }
+
+        tempFilePath = req.file.path;
+        console.log('Uploading to Cloudflare Stream:', tempFilePath);
+
+        // Upload to Cloudflare Stream
+        const cloudflareVideo = await uploadToCloudflareStream(tempFilePath, {
+            title: req.body.title || req.file.originalname
+        });
+
+        console.log('Cloudflare upload successful:', cloudflareVideo.videoId);
+
+        // Create video record in database
         const video = await Video.create({
             uploadedBy: req.user._id,
-            videoUrl: req.file.path,
-            publicId: req.file.filename,
+            videoUrl: cloudflareVideo.videoUrl,
+            videoSource: 'cloudflare',
+            cloudflareVideoId: cloudflareVideo.videoId,
             originalName: req.file.originalname,
             title: req.body.title || req.file.originalname,
             registration: req.body.registration || undefined,
             make: req.body.make || undefined,
-            make: req.body.make || undefined,
             model: req.body.model || undefined,
             vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined
         });
+
+        // Clean up temporary file
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            fs.unlinkSync(tempFilePath);
+        }
 
         res.status(201).json(video);
     } catch (error) {
         console.error('=== VIDEO UPLOAD ERROR ===');
         console.error('Error message:', error.message);
         console.error('Error stack:', error.stack);
+
+        // Clean up temporary file on error
+        if (tempFilePath && fs.existsSync(tempFilePath)) {
+            try {
+                fs.unlinkSync(tempFilePath);
+            } catch (cleanupError) {
+                console.error('Failed to clean up temp file:', cleanupError);
+            }
+        }
+
         res.status(500).json({ message: 'Video upload failed', error: error.message });
     }
 });
@@ -107,8 +222,8 @@ router.delete('/:id', protect, admin, async (req, res) => {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Delete from Cloudinary
-        if (video.publicId) {
+        // Delete from Cloudinary (only if it's a Cloudinary video)
+        if (video.videoSource === 'cloudinary' && video.publicId) {
             await cloudinary.uploader.destroy(video.publicId, { resource_type: 'video' });
         }
 

@@ -10,9 +10,19 @@ const videoSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    videoSource: {
+        type: String,
+        enum: ['cloudinary', 'youtube', 'cloudflare'],
+        default: 'cloudinary',
+    },
+    youtubeVideoId: {
+        type: String, // YouTube video ID (e.g., 'dQw4w9WgXcQ')
+    },
+    cloudflareVideoId: {
+        type: String, // Cloudflare Stream video ID
+    },
     publicId: {
-        type: String, // Cloudinary public_id
-        required: true,
+        type: String, // Cloudinary public_id (only for cloudinary videos)
     },
     originalName: {
         type: String,
