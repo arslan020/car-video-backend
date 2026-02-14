@@ -68,6 +68,7 @@ router.post('/login', async (req, res) => {
         res.json({
             _id: user._id,
             username: user.username,
+            name: user.name, // Return name
             email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
@@ -96,6 +97,7 @@ router.post('/verify-2fa', async (req, res) => {
         res.json({
             _id: user._id,
             username: user.username,
+            name: user.name, // Return name
             email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
@@ -111,7 +113,7 @@ router.post('/verify-2fa', async (req, res) => {
 // @route   POST /api/auth/staff
 // @access  Private/Admin
 router.post('/staff', protect, admin, async (req, res) => {
-    const { username, password, email, phoneNumber } = req.body;
+    const { username, name, password, email, phoneNumber } = req.body;
 
     const userExists = await User.findOne({
         $or: [{ username }, { email }]
@@ -123,6 +125,7 @@ router.post('/staff', protect, admin, async (req, res) => {
 
     const user = await User.create({
         username,
+        name, // Save name
         password,
         email,
         phoneNumber,
@@ -174,6 +177,7 @@ router.post('/staff', protect, admin, async (req, res) => {
         res.status(201).json({
             _id: user._id,
             username: user.username,
+            name: user.name,
             email: user.email,
             phoneNumber: user.phoneNumber,
             role: user.role,
@@ -199,6 +203,7 @@ router.post('/staff/:id', protect, admin, async (req, res) => {
 
     if (user) {
         user.username = req.body.username || user.username;
+        user.name = req.body.name || user.name; // Update name
         user.email = req.body.email || user.email;
         user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
         if (req.body.isTwoFactorEnabled !== undefined) {
@@ -214,6 +219,7 @@ router.post('/staff/:id', protect, admin, async (req, res) => {
         res.json({
             _id: updatedUser._id,
             username: updatedUser.username,
+            name: updatedUser.name,
             email: updatedUser.email,
             phoneNumber: updatedUser.phoneNumber,
             role: updatedUser.role,
