@@ -132,7 +132,7 @@ router.post('/staff', protect, admin, async (req, res) => {
     if (user) {
         // Send welcome email to new staff member
         const resend = new Resend(process.env.RESEND_API_KEY);
-        const frontendUrl = process.env.FRONTEND_URL || 'https://car-video-frontend.vercel.app';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://video.hestonautomotive.com';
 
         try {
             await resend.emails.send({
