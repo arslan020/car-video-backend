@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import videoRoutes from './routes/videoRoutes.js';
 import autoTraderRoutes from './routes/autoTraderRoutes.js';
 import sendLinkRoutes from './routes/sendLinkRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
 import startScheduler from './scheduler.js';
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/autotrader', autoTraderRoutes);
 app.use('/api/send-link', sendLinkRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');
