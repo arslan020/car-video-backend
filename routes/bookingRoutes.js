@@ -114,8 +114,8 @@ router.post('/', async (req, res) => {
                         <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563EB;">
                             <h3 style="margin-top: 0; color: #2563EB;">Showroom Address</h3>
                             <p style="margin: 5px 0;">Heston Automotive Ltd</p>
-                            <p style="margin: 5px 0;">Your Showroom Address Here</p>
-                            <p style="margin: 5px 0;">Contact: Your Phone Number</p>
+                            <p style="margin: 5px 0;">Unit 1 Vinyl Pl, Dawley Rd, Hayes UB3 1DA</p>
+                            <p style="margin: 5px 0;">Contact: 020 8564 8030</p>
                         </div>
 
                         <p>If you need to reschedule or have any questions, please contact us.</p>
