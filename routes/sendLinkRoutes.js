@@ -7,7 +7,7 @@ const router = express.Router();
 // @desc    Send video link via email
 // @route   POST /api/send-link
 // @access  Private/Admin
-router.post('/', protect, admin, async (req, res) => {
+router.post('/', protect, async (req, res) => {
     try {
         const { videoLink, email, vehicleDetails, customerName, customerTitle } = req.body;
 
