@@ -103,6 +103,13 @@ router.post('/', protect, (req, res, next) => {
                 return res.status(400).json({ message: 'Invalid YouTube URL or video ID' });
             }
 
+            // Check for existing video
+            const existingVideo = await Video.findOne({ registration: req.body.registration }).populate('uploadedBy', 'name username');
+            if (existingVideo) {
+                const uploaderName = existingVideo.uploadedBy?.name || existingVideo.uploadedBy?.username || 'Unknown User';
+                return res.status(400).json({ message: `This car already has a video uploaded by ${uploaderName}. Please delete it first.` });
+            }
+
             // Create video with YouTube source
             const video = await Video.create({
                 uploadedBy: req.user._id,
@@ -126,6 +133,19 @@ router.post('/', protect, (req, res, next) => {
 
         tempFilePath = req.file.path;
         console.log('Uploading to Cloudflare Stream:', tempFilePath);
+
+        // Check for existing video
+        if (req.body.registration) {
+            const existingVideo = await Video.findOne({ registration: req.body.registration }).populate('uploadedBy', 'name username');
+            if (existingVideo) {
+                // Clean up temp file immediately
+                if (tempFilePath && fs.existsSync(tempFilePath)) {
+                    fs.unlinkSync(tempFilePath);
+                }
+                const uploaderName = existingVideo.uploadedBy?.name || existingVideo.uploadedBy?.username || 'Unknown User';
+                return res.status(400).json({ message: `This car already has a video uploaded by ${uploaderName}. Please delete it first.` });
+            }
+        }
 
         // Upload to Cloudflare Stream
         const cloudflareVideo = await uploadToCloudflareStream(tempFilePath, {
@@ -172,17 +192,14 @@ router.post('/', protect, (req, res, next) => {
     }
 });
 
-// @desc    Get all videos (Staff see their own, Admins see all)
+// @desc    Get all videos (Staff see all to check for duplicates)
 // @route   GET /api/videos
 // @access  Private
 router.get('/', protect, async (req, res) => {
     try {
-        let query = {};
-        if (req.user.role !== 'admin') {
-            query.uploadedBy = req.user._id;
-        }
-
-        const videos = await Video.find(query)
+        // Allow all staff to see all videos so they can see "Uploaded by X" - Forced Refresh
+        // If we want to restrict editing/deleting, we should do that in the specific routes
+        const videos = await Video.find({})
             .populate('uploadedBy', 'username name')
             .sort({ createdAt: -1 });
 
@@ -211,15 +228,20 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// @desc    Delete a video (Admin Only)
+// @desc    Delete a video (Admin or Video Owner)
 // @route   DELETE /api/videos/:id
-// @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res) => {
+// @access  Private
+router.delete('/:id', protect, async (req, res) => {
     try {
         const video = await Video.findById(req.params.id);
 
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Check if user is admin or the video owner
+        if (req.user.role !== 'admin' && video.uploadedBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to delete this video' });
         }
 
         // Delete from Cloudinary (only if it's a Cloudinary video)
