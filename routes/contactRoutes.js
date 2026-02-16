@@ -7,6 +7,16 @@ dotenv.config();
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Helper function to capitalize first letter of each word
+const capitalizeWords = (str) => {
+    if (!str) return str;
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 // @desc    Request a Call Back
 // @route   POST /api/contact/request-call
 // @access  Public
@@ -16,6 +26,9 @@ router.post('/request-call', async (req, res) => {
     if (!name || !phone) {
         return res.status(400).json({ message: 'Name and Phone Number are required' });
     }
+
+    // Capitalize customer name properly
+    const formattedName = capitalizeWords(name);
 
     try {
         const emailContent = `
@@ -71,7 +84,7 @@ router.post('/request-call', async (req, res) => {
                                                     <td style="padding: 8px 0;">
                                                         <span style="color: #64748b; font-size: 14px; font-weight: 500;">Name:</span>
                                                         <br>
-                                                        <span style="color: #1e293b; font-size: 16px; font-weight: 600;">${name}</span>
+                                                        <span style="color: #1e293b; font-size: 16px; font-weight: 600;">${formattedName}</span>
                                                     </td>
                                                 </tr>
                                                 <tr>

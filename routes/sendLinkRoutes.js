@@ -4,6 +4,16 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Helper function to capitalize first letter of each word
+const capitalizeWords = (str) => {
+    if (!str) return str;
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+};
+
 // @desc    Send video link via email
 // @route   POST /api/send-link
 // @access  Private/Admin
@@ -22,9 +32,10 @@ router.post('/', protect, async (req, res) => {
         // Initialize Resend client
         const resend = new Resend(process.env.RESEND_API_KEY);
 
-        // Ensure customer name is properly formatted
-        const greetingName = customerName
-            ? `${customerTitle ? customerTitle + ' ' : ''}${customerName}`
+        // Ensure customer name is properly formatted with capitalization
+        const formattedName = capitalizeWords(customerName);
+        const greetingName = formattedName
+            ? `${customerTitle ? customerTitle + ' ' : ''}${formattedName}`
             : 'Customer';
 
         // Send Email
