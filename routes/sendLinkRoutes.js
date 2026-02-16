@@ -81,47 +81,16 @@ router.post('/', protect, async (req, res) => {
                                                     Thank you for your interest in the <strong style="color: #1a1a1a;">${vehicleDetails?.make} ${vehicleDetails?.model}</strong>. We have prepared a detailed video presentation specifically for you to showcase the features and condition of this vehicle.
                                                 </p>
                                                 
-                                                <!-- Benefits Box -->
-                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 30px;">
-                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 18px; font-weight: 600;">
-                                                        Benefits of viewing
-                                                    </h3>
-                                                    <table role="presentation" style="width: 100%;">
-                                                        <tr>
-                                                            <td style="padding: 5px 0;">
-                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
-                                                                <span style="color: #333333; font-size: 15px;">Detailed walkaround of the vehicle</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="padding: 5px 0;">
-                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
-                                                                <span style="color: #333333; font-size: 15px;">View from the comfort of your home</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="padding: 5px 0;">
-                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
-                                                                <span style="color: #333333; font-size: 15px;">Hassle free & convenient</span>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                <!-- CTA Box -->
+                                                <div style="background-color: #f8f8f8; padding: 30px; border-radius: 6px; margin-bottom: 30px; text-align: center;">
+                                                    <a href="${videoLink}" style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 16px 48px; font-size: 16px; font-weight: 600; border-radius: 50px;">
+                                                        Watch Video Presentation
+                                                    </a>
                                                 </div>
-                                                
-                                                <!-- CTA Button -->
-                                                <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
-                                                    <tr>
-                                                        <td align="center" style="padding: 10px;">
-                                                            <a href="${videoLink}" style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 16px 48px; font-size: 16px; font-weight: 600; border-radius: 50px;">
-                                                                Watch Video Presentation
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                </table>
                                                 
                                                 <p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.6; text-align: center;">
                                                     If you have any questions, please contact us at 
-                                                    <a href="tel:02085648030" style="color: #001d4a; text-decoration: none; font-weight: 600;">020 8564 8030</a>
+                                                    <a href="tel:02085648030" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">020 8564 8030</a>
                                                 </p>
                                             </td>
                                         </tr>
