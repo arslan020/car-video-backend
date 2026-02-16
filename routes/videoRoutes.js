@@ -211,6 +211,28 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// @desc    Update reserve car link (Admin Only)
+// @route   PATCH /api/videos/:id/reserve-link
+// @access  Private/Admin
+router.patch('/:id/reserve-link', protect, admin, async (req, res) => {
+    try {
+        const { reserveCarLink } = req.body;
+        const video = await Video.findById(req.params.id);
+
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        video.reserveCarLink = reserveCarLink || '';
+        await video.save();
+
+        res.json({ message: 'Reserve car link updated successfully', video });
+    } catch (error) {
+        console.error('Update reserve link error:', error.message);
+        res.status(500).json({ message: 'Failed to update reserve car link' });
+    }
+});
+
 // @desc    Delete a video (Admin Only)
 // @route   DELETE /api/videos/:id
 // @access  Private/Admin

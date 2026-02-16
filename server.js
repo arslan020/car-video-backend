@@ -8,6 +8,7 @@ import autoTraderRoutes from './routes/autoTraderRoutes.js';
 import sendLinkRoutes from './routes/sendLinkRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
+import vehicleMetadataRoutes from './routes/vehicleMetadataRoutes.js';
 import startScheduler from './scheduler.js';
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use('/api/autotrader', autoTraderRoutes);
 app.use('/api/send-link', sendLinkRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/vehicle-metadata', vehicleMetadataRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');

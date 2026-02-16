@@ -55,6 +55,10 @@ const videoSchema = mongoose.Schema({
     },
     vehicleDetails: {
         type: mongoose.Schema.Types.Mixed
+    },
+    reserveCarLink: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true,

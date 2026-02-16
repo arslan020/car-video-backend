@@ -2,8 +2,6 @@ import express from 'express';
 import axios from 'axios';
 import cron from 'node-cron';
 import Stock from '../models/Stock.js';
-import VehicleMetadata from '../models/VehicleMetadata.js';
-import Video from '../models/Video.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -114,33 +112,8 @@ router.get('/stock', protect, async (req, res) => {
             stockRecord = await Stock.findOne({ advertiserId });
         }
 
-        // Fetch all local metadata (reserve links)
-        const metadataList = await VehicleMetadata.find({});
-        const metadataMap = new Map();
-        metadataList.forEach(meta => {
-            if (meta.registration) {
-                metadataMap.set(meta.registration.replace(/\s/g, '').toUpperCase(), meta.reserveLink);
-            }
-        });
-
-        // Merge metadata into results
-        let results = stockRecord?.stockData || [];
-        if (results.length > 0) {
-            results = results.map(item => {
-                const reg = item.vehicle.registration?.replace(/\s/g, '').toUpperCase();
-                const reserveLink = metadataMap.get(reg) || '';
-                return {
-                    ...item,
-                    vehicle: {
-                        ...item.vehicle,
-                        reserveLink
-                    }
-                };
-            });
-        }
-
         res.json({
-            results: results,
+            results: stockRecord?.stockData || [],
             lastSyncTime: stockRecord?.lastSyncTime,
             totalVehicles: stockRecord?.totalVehicles || 0,
             syncStatus: stockRecord?.syncStatus || 'unknown'
@@ -303,50 +276,3 @@ router.get('/lookup/:registration', protect, async (req, res) => {
 });
 
 export default router;
-
-// @desc    Update Reserve Link for a Vehicle
-// @route   POST /api/autotrader/reserve-link
-// @access  Private/Admin
-router.post('/reserve-link', protect, admin, async (req, res) => {
-    const { registration, reserveLink } = req.body;
-
-    if (!registration) {
-        return res.status(400).json({ message: 'Registration is required' });
-    }
-
-    try {
-        const cleanReg = registration.replace(/\s/g, '').toUpperCase();
-
-        // 1. Upsert Metadata
-        await VehicleMetadata.findOneAndUpdate(
-            { registration: cleanReg },
-            { reserveLink },
-            { upsert: true, new: true }
-        );
-
-        // 2. Update existing videos for this vehicle
-        // We need to look for videos where registration matches OR inside vehicleDetails
-        const videos = await Video.find({
-            $or: [
-                { registration: cleanReg },
-                { 'vehicleDetails.registration': { $regex: new RegExp(cleanReg, 'i') } } // Regex for loose match on nested
-            ]
-        });
-
-        if (videos.length > 0) {
-            for (const video of videos) {
-                if (video.vehicleDetails) {
-                    video.vehicleDetails.reserveLink = reserveLink;
-                    video.markModified('vehicleDetails'); // Important for Mixed type
-                    await video.save();
-                }
-            }
-        }
-
-        res.json({ message: 'Reserve link updated successfully', registration: cleanReg, reserveLink });
-
-    } catch (error) {
-        console.error('Error updating reserve link:', error);
-        res.status(500).json({ message: 'Failed to update reserve link' });
-    }
-});
