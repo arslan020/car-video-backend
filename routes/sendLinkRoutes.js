@@ -50,11 +50,11 @@ router.post('/', protect, async (req, res) => {
                                         
                                         <!-- Header Section -->
                                         <tr>
-                                            <td style="background: linear-gradient(135deg, #1a2332 0%, #2c3e50 100%); padding: 40px 30px; text-align: center;">
+                                            <td style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 40px 30px; text-align: center;">
                                                 <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: 0.5px;">
                                                     HESTON AUTOMOTIVE
                                                 </h1>
-                                                <p style="margin: 10px 0 0 0; color: #d4af37; font-size: 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
+                                                <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
                                                     Premium Vehicle Specialists
                                                 </p>
                                             </td>
@@ -62,11 +62,11 @@ router.post('/', protect, async (req, res) => {
                                         
                                         <!-- Vehicle Banner -->
                                         <tr>
-                                            <td style="background-color: #d4af37; padding: 20px 30px; text-align: center;">
-                                                <h2 style="margin: 0; color: #1a2332; font-size: 24px; font-weight: 700;">
+                                            <td style="background-color: #3b82f6; padding: 20px 30px; text-align: center;">
+                                                <h2 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">
                                                     ${vehicleDetails?.make || ''} ${vehicleDetails?.model || ''}
                                                 </h2>
-                                                <p style="margin: 5px 0 0 0; color: #2c3e50; font-size: 16px; font-weight: 500;">
+                                                <p style="margin: 5px 0 0 0; color: #e0e7ff; font-size: 16px; font-weight: 500;">
                                                     Video Presentation
                                                 </p>
                                             </td>
@@ -87,7 +87,7 @@ router.post('/', protect, async (req, res) => {
                                                 <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0;">
                                                     <tr>
                                                         <td align="center">
-                                                            <a href="${videoLink}" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #c9a02c 100%); color: #1a2332; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); transition: all 0.3s ease;">
+                                                            <a href="${videoLink}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 6px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.3s ease;">
                                                                 ▶ WATCH VIDEO PRESENTATION
                                                             </a>
                                                         </td>
@@ -104,7 +104,7 @@ router.post('/', protect, async (req, res) => {
                                                 <p style="margin: 0 0 5px 0; color: #333333; font-size: 15px;">
                                                     Warm regards,
                                                 </p>
-                                                <p style="margin: 0; color: #1a2332; font-size: 17px; font-weight: 700;">
+                                                <p style="margin: 0; color: #1e3a8a; font-size: 17px; font-weight: 700;">
                                                     The Heston Automotive Team
                                                 </p>
                                             </td>
@@ -112,11 +112,11 @@ router.post('/', protect, async (req, res) => {
                                         
                                         <!-- Contact Information Section -->
                                         <tr>
-                                            <td style="background-color: #f8f9fa; padding: 30px; border-top: 3px solid #d4af37;">
+                                            <td style="background-color: #eff6ff; padding: 30px; border-top: 3px solid #3b82f6;">
                                                 <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                                     <tr>
                                                         <td style="padding-bottom: 15px;">
-                                                            <p style="margin: 0 0 5px 0; color: #1a2332; font-size: 18px; font-weight: 700;">
+                                                            <p style="margin: 0 0 5px 0; color: #1e3a8a; font-size: 18px; font-weight: 700;">
                                                                 Heston Automotive
                                                             </p>
                                                         </td>
@@ -126,16 +126,16 @@ router.post('/', protect, async (req, res) => {
                                                             <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                                                 <tr>
                                                                     <td style="padding: 8px 0;">
-                                                                        <span style="color: #d4af37; font-size: 16px; margin-right: 10px;">📞</span>
-                                                                        <a href="tel:02085648030" style="color: #2c3e50; text-decoration: none; font-size: 15px; font-weight: 500;">
+                                                                        <span style="color: #3b82f6; font-size: 16px; margin-right: 10px;">📞</span>
+                                                                        <a href="tel:02085648030" style="color: #1e3a8a; text-decoration: none; font-size: 15px; font-weight: 500;">
                                                                             020 8564 8030
                                                                         </a>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td style="padding: 8px 0;">
-                                                                        <span style="color: #d4af37; font-size: 16px; margin-right: 10px;">✉️</span>
-                                                                        <a href="mailto:enquiries@hestonautomotive.com" style="color: #2c3e50; text-decoration: none; font-size: 15px; font-weight: 500;">
+                                                                        <span style="color: #3b82f6; font-size: 16px; margin-right: 10px;">✉️</span>
+                                                                        <a href="mailto:enquiries@hestonautomotive.com" style="color: #1e3a8a; text-decoration: none; font-size: 15px; font-weight: 500;">
                                                                             enquiries@hestonautomotive.com
                                                                         </a>
                                                                     </td>
@@ -149,11 +149,11 @@ router.post('/', protect, async (req, res) => {
                                         
                                         <!-- Footer -->
                                         <tr>
-                                            <td style="background-color: #1a2332; padding: 20px 30px; text-align: center;">
-                                                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                            <td style="background-color: #1e3a8a; padding: 20px 30px; text-align: center;">
+                                                <p style="margin: 0; color: #93c5fd; font-size: 12px; line-height: 1.5;">
                                                     © ${new Date().getFullYear()} Heston Automotive. All rights reserved.
                                                 </p>
-                                                <p style="margin: 10px 0 0 0; color: #777777; font-size: 11px;">
+                                                <p style="margin: 10px 0 0 0; color: #60a5fa; font-size: 11px;">
                                                     This email was sent regarding your enquiry about ${vehicleDetails?.make} ${vehicleDetails?.model}
                                                 </p>
                                             </td>
