@@ -24,7 +24,7 @@ export async function fetchAllStockFromAutoTrader() {
 
         // 1. Get Access Token
         const tokenResponse = await axios.post(
-            'https://api-sandbox.autotrader.co.uk/authenticate',
+            'https://api.autotrader.co.uk/authenticate',
             new URLSearchParams({ key, secret }),
             {
                 headers: {
@@ -42,7 +42,7 @@ export async function fetchAllStockFromAutoTrader() {
 
         do {
             const stockResponse = await axios.get(
-                `https://api-sandbox.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=100&features=true`,
+                `https://api.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=100&features=true`,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
