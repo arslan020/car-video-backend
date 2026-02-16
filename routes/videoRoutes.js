@@ -178,7 +178,7 @@ router.post('/', protect, (req, res, next) => {
 router.get('/', protect, async (req, res) => {
     try {
         let query = {};
-        if (req.user.role !== 'admin') {
+        if (req.user.role !== 'admin' && req.query.all !== 'true') {
             query.uploadedBy = req.user._id;
         }
 
@@ -236,12 +236,17 @@ router.patch('/:id/reserve-link', protect, admin, async (req, res) => {
 // @desc    Delete a video (Admin Only)
 // @route   DELETE /api/videos/:id
 // @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, async (req, res) => {
     try {
         const video = await Video.findById(req.params.id);
 
         if (!video) {
             return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Check permissions: Admin or Owner
+        if (req.user.role !== 'admin' && video.uploadedBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to delete this video' });
         }
 
         // Delete from Cloudinary (only if it's a Cloudinary video)
