@@ -74,7 +74,7 @@ router.post('/', protect, async (req, res) => {
                                                 </h1>
                                                 
                                                 <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                                                    Dear ${greetingName},
+                                                    Dear <strong>${greetingName}</strong>,
                                                 </p>
                                                 
                                                 <!-- CTA Box with Text -->

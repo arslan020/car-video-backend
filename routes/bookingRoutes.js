@@ -61,74 +61,59 @@ router.post('/', async (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>New Showroom Visit Booking</title>
                     </head>
-                    <body style="margin: 0; padding: 0; background-color: #e6f3ff; font-family: 'Segoe UI', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #e6f3ff;">
+                    <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
                             <tr>
                                 <td align="center" style="padding: 40px 20px;">
                                     <!-- Main Container -->
-                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                                         
-                                        <!-- Header -->
+                                        <!-- Header with Logo -->
                                         <tr>
-                                            <td style="background-color: #1a1654; padding: 40px 40px; text-align: center;">
-                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: brightness(0) invert(1);">
-                                                <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9;">
-                                                    Premium Vehicle Specialists
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- Banner -->
-                                        <tr>
-                                            <td style="background: linear-gradient(135deg, #1a1654 0%, #2a2664 100%); padding: 25px 40px; text-align: center;">
-                                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
-                                                    New Showroom Visit Booking
-                                                </h1>
-                                                <p style="margin: 8px 0 0 0; color: #e6f3ff; font-size: 14px;">
-                                                    Booking Confirmed
-                                                </p>
+                                            <td style="padding: 30px 40px; text-align: center; background-color: #ffffff; border-bottom: 1px solid #e0e0e0;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto;">
                                             </td>
                                         </tr>
                                         <!-- Main Content -->
                                         <tr>
                                             <td style="padding: 40px;">
-                                                <!-- Visit Details -->
-                                                <div style="background-color: #e6f3ff; padding: 25px; border-left: 4px solid #1a1654; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <h1 style="margin: 0 0 20px 0; color: #1a1a1a; font-size: 28px; font-weight: 700;">
+                                                    📅 New Showroom Visit Booking
+                                                </h1>
+                                                
+                                                <!-- Visit Details Box -->
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">
                                                         Visit Details
-                                                    </h2>
-                                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                                        <tr>
-                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Date:</td>
-                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${formattedDate}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="width: 40%; color: #666666; font-size: 14px;">Time:</td>
-                                                            <td style="color: #1a1a1a; font-size: 16px; font-weight: bold;">${visitTime}</td>
-                                                        </tr>
-                                                    </table>
+                                                    </h3>
+                                                    <p style="margin: 0 0 10px 0; color: #333333; font-size: 15px;">
+                                                        <strong>Date:</strong> ${formattedDate}
+                                                    </p>
+                                                    <p style="margin: 0; color: #333333; font-size: 15px;">
+                                                        <strong>Time:</strong> ${visitTime}
+                                                    </p>
                                                 </div>
 
                                                 <!-- Customer Details -->
-                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">
                                                         Customer Information
-                                                    </h2>
-                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">${customerName}</p>
-                                                    <p style="margin: 0 0 5px 0; color: #666666; font-size: 14px;">
-                                                        <a href="mailto:${customerEmail}" style="color: #666666; text-decoration: none;">${customerEmail}</a>
+                                                    </h3>
+                                                    <p style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 16px; font-weight: 700;">${customerName}</p>
+                                                    <p style="margin: 0 0 8px 0; color: #333333; font-size: 14px;">
+                                                        <a href="mailto:${customerEmail}" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">${customerEmail}</a>
                                                     </p>
-                                                    <p style="margin: 0; color: #666666; font-size: 14px;">
-                                                        <a href="tel:${customerPhone}" style="color: #666666; text-decoration: none;">${customerPhone}</a>
+                                                    <p style="margin: 0; color: #333333; font-size: 14px;">
+                                                        <a href="tel:${customerPhone}" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">${customerPhone}</a>
                                                     </p>
                                                 </div>
 
                                                 <!-- Vehicle Details -->
-                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">
                                                         Vehicle of Interest
-                                                    </h2>
-                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                    </h3>
+                                                    <p style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 18px; font-weight: 700;">
                                                         ${video.make || 'N/A'} ${video.model || 'N/A'}
                                                     </p>
                                                     <p style="margin: 0; color: #666666; font-size: 14px;">
@@ -137,9 +122,9 @@ router.post('/', async (req, res) => {
                                                 </div>
 
                                                 ${notes ? `
-                                                <div style="background-color: #fef3c7; padding: 20px; border-radius: 4px; border-left: 4px solid #f59e0b;">
-                                                    <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; text-transform: uppercase; font-weight: bold;">Additional Notes</h3>
-                                                    <p style="margin: 0; color: #92400e; font-size: 14px;">${notes}</p>
+                                                <div style="background-color: #fff8e1; padding: 20px; border-radius: 6px; border-left: 4px solid #ffa726;">
+                                                    <h3 style="margin: 0 0 10px 0; color: #e65100; font-size: 14px; text-transform: uppercase; font-weight: 600;">Additional Notes</h3>
+                                                    <p style="margin: 0; color: #5d4037; font-size: 14px;">${notes}</p>
                                                 </div>
                                                 ` : ''}
                                                 
@@ -148,10 +133,10 @@ router.post('/', async (req, res) => {
                                         
                                         <!-- Footer -->
                                         <tr>
-                                            <td style="background-color: #1a1654; padding: 25px 40px; text-align: center;">
-                                                <p style="margin: 0; color: #e6f3ff; font-size: 12px; line-height: 1.6; opacity: 0.9;"> 
+                                            <td style="background-color: #f8f8f8; padding: 20px 40px; text-align: center; border-top: 1px solid #e0e0e0;">
+                                                <p style="margin: 0; color: #999999; font-size: 12px;"> 
                                                     Booking ID: ${booking._id}<br>
-                                                    © ${new Date().getFullYear()} Heston Automotive Admin System.
+                                                    © ${new Date().getFullYear()} Heston Automotive. Automated Notification.
                                                 </p>
                                             </td>
                                         </tr>
@@ -177,75 +162,63 @@ router.post('/', async (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Showroom Visit Booking Confirmation</title>
                     </head>
-                    <body style="margin: 0; padding: 0; background-color: #e6f3ff; font-family: 'Segoe UI', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #e6f3ff;">
+                    <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
                             <tr>
                                 <td align="center" style="padding: 40px 20px;">
                                     <!-- Main Container -->
-                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                                         
-                                        <!-- Header -->
+                                        <!-- Header with Logo -->
                                         <tr>
-                                            <td style="background-color: #1a1654; padding: 40px 40px; text-align: center;">
-                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: brightness(0) invert(1);">
-                                                <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9;">
-                                                    Premium Vehicle Specialists
-                                                </p>
+                                            <td style="padding: 30px 40px; text-align: center; background-color: #ffffff; border-bottom: 1px solid #e0e0e0;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto;">
                                             </td>
                                         </tr>
-                                        
-                                        <!-- Banner -->
+
+                                        <!-- Main Content -->
                                         <tr>
-                                            <td style="background: linear-gradient(135deg, #1a1654 0%, #2a2664 100%); padding: 25px 40px; text-align: center;">
-                                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
-                                                    Booking Confirmed
+                                            <td style="padding: 40px;">
+                                                <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 28px; font-weight: 700;">
+                                                    ✅ Booking Confirmed
                                                 </h1>
-                                                <p style="margin: 8px 0 0 0; color: #e6f3ff; font-size: 15px;">
-                                                    We look forward to seeing you
+                                                <p style="margin: 0 0 25px 0; color: #666666; font-size: 16px;">
+                                                    We look forward to seeing you, <strong>${customerName}</strong>
                                                 </p>
-                                            </td>
-                                        </tr>
                                                 
                                                 <!-- Visit Details -->
-                                                <div style="background-color: #e6f3ff; padding: 25px; border-left: 4px solid #1a1654; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">
                                                         Your Visit Details
-                                                    </h2>
-                                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                                        <tr>
-                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Date:</td>
-                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${formattedDate}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Time:</td>
-                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${visitTime}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td style="width: 40%; color: #666666; font-size: 14px;">Vehicle:</td>
-                                                            <td style="color: #1a1a1a; font-size: 16px; font-weight: bold;">
-                                                                ${video.make || ''} ${video.model || ''}
-                                                            </td>
-                                                        </tr>
-                                                    </table>
+                                                    </h3>
+                                                    <p style="margin: 0 0 10px 0; color: #333333; font-size: 15px;">
+                                                        <strong>Date:</strong> ${formattedDate}
+                                                    </p>
+                                                    <p style="margin: 0 0 10px 0; color: #333333; font-size: 15px;">
+                                                        <strong>Time:</strong> ${visitTime}
+                                                    </p>
+                                                    <p style="margin: 0; color: #333333; font-size: 15px;">
+                                                        <strong>Vehicle:</strong> ${video.make || ''} ${video.model || ''}
+                                                    </p>
                                                 </div>
 
                                                 <!-- Address and Contact -->
-                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 15px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 25px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px; font-weight: 600;">
                                                         Location
-                                                    </h2>
-                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                    </h3>
+                                                    <p style="margin: 0 0 8px 0; color: #1a1a1a; font-size: 16px; font-weight: 700;">
                                                         Heston Automotive Ltd
                                                     </p>
-                                                    <p style="margin: 0 0 5px 0; color: #666666; font-size: 14px;">
+                                                    <p style="margin: 0 0 12px 0; color: #666666; font-size: 14px;">
                                                         Unit 1 Vinyl Pl, Dawley Rd<br>Hayes, UB3 1DA
                                                     </p>
-                                                    <p style="margin: 15px 0 0 0; color: #666666; font-size: 14px;">
-                                                        <a href="tel:02085648030" style="color: #666666; text-decoration: none; font-weight: bold;">020 8564 8030</a>
+                                                    <p style="margin: 0; color: #333333; font-size: 14px;">
+                                                        <a href="tel:02085648030" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">020 8564 8030</a>
                                                     </p>
                                                 </div>
 
-                                                <p style="margin: 0; color: #4a4a4a; font-size: 15px; line-height: 1.6; text-align: center;">
+                                                <p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.6; text-align: center;">
                                                     If you need to reschedule or have any questions prior to your visit, please do not hesitate to contact us.
                                                 </p>
                                             </td>
@@ -253,8 +226,8 @@ router.post('/', async (req, res) => {
                                         
                                         <!-- Footer -->
                                         <tr>
-                                            <td style="background-color: #1a1654; padding: 25px 40px; text-align: center;">
-                                                <p style="margin: 0; color: #e6f3ff; font-size: 12px; line-height: 1.6; opacity: 0.9;">
+                                            <td style="background-color: #f8f8f8; padding: 20px 40px; text-align: center; border-top: 1px solid #e0e0e0;">
+                                                <p style="margin: 0; color: #999999; font-size: 12px;">
                                                     Booking Reference: ${booking._id}<br>
                                                     © ${new Date().getFullYear()} Heston Automotive. All rights reserved.
                                                 </p>
