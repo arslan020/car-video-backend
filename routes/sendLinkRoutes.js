@@ -70,7 +70,7 @@ router.post('/', protect, async (req, res) => {
                                         <tr>
                                             <td style="padding: 40px;">
                                                 <h1 style="margin: 0 0 20px 0; color: #1a1a1a; font-size: 28px; font-weight: 700;">
-                                                    Your Personalized Video Presentation
+                                                    Your Personalised Video Presentation
                                                 </h1>
                                                 
                                                 <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6;">
