@@ -77,12 +77,11 @@ router.post('/', protect, async (req, res) => {
                                                     Dear ${greetingName},
                                                 </p>
                                                 
-                                                <p style="margin: 0 0 25px 0; color: #555555; font-size: 16px; line-height: 1.6;">
-                                                    Thank you for your interest in the <strong style="color: #1a1a1a;">${vehicleDetails?.make} ${vehicleDetails?.model}</strong>. We have prepared a detailed video presentation specifically for you to showcase the features and condition of this vehicle.
-                                                </p>
-                                                
-                                                <!-- CTA Box -->
+                                                <!-- CTA Box with Text -->
                                                 <div style="background-color: #f8f8f8; padding: 30px; border-radius: 6px; margin-bottom: 30px; text-align: center;">
+                                                    <p style="margin: 0 0 25px 0; color: #555555; font-size: 16px; line-height: 1.6;">
+                                                        Thank you for your interest in the <strong style="color: #1a1a1a;">${vehicleDetails?.make} ${vehicleDetails?.model}</strong>. We have prepared a detailed video presentation specifically for you to showcase the features and condition of this vehicle.
+                                                    </p>
                                                     <a href="${videoLink}" style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 16px 48px; font-size: 16px; font-weight: 600; border-radius: 50px;">
                                                         Watch Video Presentation
                                                     </a>
@@ -90,48 +89,9 @@ router.post('/', protect, async (req, res) => {
                                                 
                                                 <p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.6; text-align: center;">
                                                     If you have any questions, please contact us at 
-                                                    <a href="tel:02085648030" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">020 8564 8030</a>
+                                                    <a href="tel:02085648030" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">020 8564 8030</a> or 
+                                                    <a href="mailto:enquiries@hestonautomotive.com" style="color: #5b9bd5; text-decoration: none; font-weight: 600;">enquiries@hestonautomotive.com</a>
                                                 </p>
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- Contact Section -->
-                                        <tr>
-                                            <td style="background-color: #e6f3ff; padding: 35px 40px; border-top: 3px solid #1a1654;">
-                                                <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                                    <tr>
-                                                        <td style="text-align: center; padding-bottom: 20px;">
-                                                            <h2 style="margin: 0 0 8px 0; color: #1a1654; font-size: 20px; font-weight: bold;">
-                                                                Heston Automotive
-                                                            </h2>
-                                                            <p style="margin: 0; color: #666666; font-size: 13px; letter-spacing: 0.5px;">
-                                                                Premium Vehicle Specialists
-                                                            </p>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>
-                                                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                                                <tr>
-                                                                    <td style="padding: 10px 0; text-align: center;">
-                                                                        <span style="color: #1a1654; font-size: 18px; margin-right: 8px;">📞</span>
-                                                                        <a href="tel:02085648030" style="color: #1a1654; text-decoration: none; font-size: 15px; font-weight: 600;">
-                                                                            020 8564 8030
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td style="padding: 10px 0; text-align: center;">
-                                                                        <span style="color: #1a1654; font-size: 18px; margin-right: 8px;">✉️</span>
-                                                                        <a href="mailto:enquiries@hestonautomotive.com" style="color: #1a1654; text-decoration: none; font-size: 15px; font-weight: 600;">
-                                                                            enquiries@hestonautomotive.com
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                </table>
                                             </td>
                                         </tr>
                                         
