@@ -36,10 +36,16 @@ router.post('/generate', protect, async (req, res) => {
             expiresAt
         });
 
+        // Determine the frontend URL
+        const frontendUrl = process.env.FRONTEND_URL ||
+            (process.env.NODE_ENV === 'production'
+                ? 'https://video.hestonautomotive.com'
+                : 'http://localhost:3000');
+
         res.status(201).json({
             token: magicLink.token,
             expiresAt: magicLink.expiresAt,
-            url: `${req.protocol}://${req.get('host')}/watch/${magicLink.token}` // Note: Frontend URL might differ in dev
+            url: `${frontendUrl}/watch/${magicLink.token}`
         });
 
     } catch (error) {
