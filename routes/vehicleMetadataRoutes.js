@@ -6,8 +6,8 @@ const router = express.Router();
 
 // @desc    Get vehicle metadata by registration
 // @route   GET /api/vehicle-metadata/:registration
-// @access  Private/Admin
-router.get('/:registration', protect, admin, async (req, res) => {
+// @access  Public
+router.get('/:registration', async (req, res) => {
     try {
         const registration = req.params.registration.toUpperCase().trim();
         let metadata = await VehicleMetadata.findOne({ registration });
