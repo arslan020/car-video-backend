@@ -61,34 +61,40 @@ router.post('/', async (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>New Showroom Visit Booking</title>
                     </head>
-                    <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f8f8;">
+                    <body style="margin: 0; padding: 0; background-color: #e6f3ff; font-family: 'Segoe UI', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #e6f3ff;">
                             <tr>
-                                <td align="center" style="padding: 40px 0;">
+                                <td align="center" style="padding: 40px 20px;">
                                     <!-- Main Container -->
-                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e5e5;">
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
                                         
-                                        <!-- Header with Logo -->
+                                        <!-- Header -->
                                         <tr>
-                                            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #f0f0f0;">
-                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                                            <td style="background-color: #1a1654; padding: 40px 40px; text-align: center;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: brightness(0) invert(1);">
+                                                <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9;">
+                                                    Premium Vehicle Specialists
+                                                </p>
                                             </td>
                                         </tr>
                                         
+                                        <!-- Banner -->
+                                        <tr>
+                                            <td style="background: linear-gradient(135deg, #1a1654 0%, #2a2664 100%); padding: 25px 40px; text-align: center;">
+                                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
+                                                    New Showroom Visit Booking
+                                                </h1>
+                                                <p style="margin: 8px 0 0 0; color: #e6f3ff; font-size: 14px;">
+                                                    Booking Confirmed
+                                                </p>
+                                            </td>
+                                        </tr>
                                         <!-- Main Content -->
                                         <tr>
                                             <td style="padding: 40px;">
-                                                <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 24px; font-weight: normal; text-align: center; letter-spacing: -0.5px;">
-                                                    New Showroom Visit Booking
-                                                </h1>
-                                                
-                                                <p style="margin: 0 0 30px 0; color: #666666; font-size: 14px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
-                                                    Booking Confirmed
-                                                </p>
-                                                
                                                 <!-- Visit Details -->
-                                                <div style="background-color: #f8f8f8; padding: 25px; border-left: 4px solid #003366; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #003366; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #e6f3ff; padding: 25px; border-left: 4px solid #1a1654; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                                         Visit Details
                                                     </h2>
                                                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -142,8 +148,8 @@ router.post('/', async (req, res) => {
                                         
                                         <!-- Footer -->
                                         <tr>
-                                            <td style="background-color: #f8f8f8; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
-                                                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                            <td style="background-color: #1a1654; padding: 25px 40px; text-align: center;">
+                                                <p style="margin: 0; color: #e6f3ff; font-size: 12px; line-height: 1.6; opacity: 0.9;"> 
                                                     Booking ID: ${booking._id}<br>
                                                     © ${new Date().getFullYear()} Heston Automotive Admin System.
                                                 </p>
@@ -171,35 +177,38 @@ router.post('/', async (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Showroom Visit Booking Confirmation</title>
                     </head>
-                    <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f8f8;">
+                    <body style="margin: 0; padding: 0; background-color: #e6f3ff; font-family: 'Segoe UI', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #e6f3ff;">
                             <tr>
-                                <td align="center" style="padding: 40px 0;">
+                                <td align="center" style="padding: 40px 20px;">
                                     <!-- Main Container -->
-                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e5e5;">
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
                                         
-                                        <!-- Header with Logo -->
+                                        <!-- Header -->
                                         <tr>
-                                            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #f0f0f0;">
-                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                                            <td style="background-color: #1a1654; padding: 40px 40px; text-align: center;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: brightness(0) invert(1);">
+                                                <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9;">
+                                                    Premium Vehicle Specialists
+                                                </p>
                                             </td>
                                         </tr>
                                         
-                                        <!-- Main Content -->
+                                        <!-- Banner -->
                                         <tr>
-                                            <td style="padding: 40px;">
-                                                <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 24px; font-weight: normal; text-align: center; letter-spacing: -0.5px;">
+                                            <td style="background: linear-gradient(135deg, #1a1654 0%, #2a2664 100%); padding: 25px 40px; text-align: center;">
+                                                <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold; letter-spacing: 0.5px;">
                                                     Booking Confirmed
                                                 </h1>
-                                                
-                                                <p style="margin: 0 0 30px 0; color: #4a4a4a; font-size: 16px; line-height: 1.6; text-align: center;">
-                                                    Dear ${customerName},<br>
-                                                    We are pleased to confirm your showroom visit.
+                                                <p style="margin: 8px 0 0 0; color: #e6f3ff; font-size: 15px;">
+                                                    We look forward to seeing you
                                                 </p>
+                                            </td>
+                                        </tr>
                                                 
                                                 <!-- Visit Details -->
-                                                <div style="background-color: #f8f8f8; padding: 25px; border-left: 4px solid #003366; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 20px 0; color: #003366; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                <div style="background-color: #e6f3ff; padding: 25px; border-left: 4px solid #1a1654; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                                         Your Visit Details
                                                     </h2>
                                                     <table role="presentation" style="width: 100%; border-collapse: collapse;">
@@ -222,7 +231,7 @@ router.post('/', async (req, res) => {
 
                                                 <!-- Address and Contact -->
                                                 <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
-                                                    <h2 style="margin: 0 0 15px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                    <h2 style="margin: 0 0 15px 0; color: #1a1654; font-size: 16px; font-weight: bold; text-transform: uppercase;">
                                                         Location
                                                     </h2>
                                                     <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">
@@ -244,8 +253,8 @@ router.post('/', async (req, res) => {
                                         
                                         <!-- Footer -->
                                         <tr>
-                                            <td style="background-color: #f8f8f8; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
-                                                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                            <td style="background-color: #1a1654; padding: 25px 40px; text-align: center;">
+                                                <p style="margin: 0; color: #e6f3ff; font-size: 12px; line-height: 1.6; opacity: 0.9;">
                                                     Booking Reference: ${booking._id}<br>
                                                     © ${new Date().getFullYear()} Heston Automotive. All rights reserved.
                                                 </p>
