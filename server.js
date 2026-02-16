@@ -10,7 +10,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import vehicleMetadataRoutes from './routes/vehicleMetadataRoutes.js';
 import auditRoutes from './routes/auditRoutes.js';
-import magicLinkRoutes from './routes/magicLinkRoutes.js';
+import auditRoutes from './routes/auditRoutes.js';
 import startScheduler from './scheduler.js';
 
 dotenv.config();
@@ -36,7 +36,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/vehicle-metadata', vehicleMetadataRoutes);
 app.use('/api/audit-logs', auditRoutes);
-app.use('/api/magic-links', magicLinkRoutes);
+app.use('/api/audit-logs', auditRoutes);
 
 app.get('/', (req, res) => {
     res.send('API is running...');
