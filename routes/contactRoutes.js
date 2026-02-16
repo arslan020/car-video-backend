@@ -39,123 +39,85 @@ router.post('/request-call', async (req, res) => {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Call Request - ${vehicleDetails?.make} ${vehicleDetails?.model}</title>
             </head>
-            <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f4f4f4;">
+            <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+                <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f8f8;">
                     <tr>
-                        <td align="center" style="padding: 40px 20px;">
+                        <td align="center" style="padding: 40px 0;">
                             <!-- Main Container -->
-                            <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden;">
+                            <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e5e5;">
                                 
-                                <!-- Header Section -->
+                                <!-- Header with Logo -->
                                 <tr>
-                                    <td style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 40px 30px; text-align: center;">
-                                        <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: 0.5px;">
-                                            HESTON AUTOMOTIVE
-                                        </h1>
-                                        <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 14px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
-                                            New Call Request
-                                        </p>
-                                    </td>
-                                </tr>
-                                
-                                <!-- Alert Banner -->
-                                <tr>
-                                    <td style="background-color: #3b82f6; padding: 20px 30px; text-align: center;">
-                                        <h2 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 700;">
-                                            📞 Customer Callback Request
-                                        </h2>
+                                    <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+                                        <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
                                     </td>
                                 </tr>
                                 
                                 <!-- Main Content -->
                                 <tr>
-                                    <td style="padding: 40px 30px;">
-                                        <p style="margin: 0 0 25px 0; color: #1e3a8a; font-size: 16px; font-weight: 600; line-height: 1.6;">
-                                            A customer has requested a callback regarding a vehicle.
+                                    <td style="padding: 40px;">
+                                        <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 24px; font-weight: normal; text-align: center; letter-spacing: -0.5px;">
+                                            New Call Request
+                                        </h1>
+                                        
+                                        <p style="margin: 0 0 30px 0; color: #666666; font-size: 14px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                                            Action Required
                                         </p>
                                         
-                                        <!-- Customer Information Card -->
-                                        <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin-bottom: 25px; border-radius: 4px;">
-                                            <h3 style="margin: 0 0 15px 0; color: #1e3a8a; font-size: 18px; font-weight: 700;">
-                                                Customer Information
-                                            </h3>
+                                        <!-- Customer Information -->
+                                        <div style="background-color: #f8f8f8; padding: 25px; border-left: 4px solid #003366; margin-bottom: 30px;">
+                                            <h2 style="margin: 0 0 20px 0; color: #003366; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                Customer Details
+                                            </h2>
                                             <table role="presentation" style="width: 100%; border-collapse: collapse;">
                                                 <tr>
-                                                    <td style="padding: 8px 0;">
-                                                        <span style="color: #64748b; font-size: 14px; font-weight: 500;">Name:</span>
-                                                        <br>
-                                                        <span style="color: #1e293b; font-size: 16px; font-weight: 600;">${formattedName}</span>
-                                                    </td>
+                                                    <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Name:</td>
+                                                    <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${formattedName}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td style="padding: 8px 0;">
-                                                        <span style="color: #64748b; font-size: 14px; font-weight: 500;">Phone Number:</span>
-                                                        <br>
-                                                        <a href="tel:${phone}" style="color: #3b82f6; font-size: 18px; font-weight: 700; text-decoration: none;">
-                                                            📱 ${phone}
-                                                        </a>
+                                                    <td style="width: 40%; color: #666666; font-size: 14px;">Phone:</td>
+                                                    <td style="color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                        <a href="tel:${phone}" style="color: #1a1a1a; text-decoration: none;">${phone}</a>
                                                     </td>
                                                 </tr>
                                             </table>
                                         </div>
                                         
-                                        <!-- Vehicle Interest Card -->
-                                        <div style="background-color: #f8fafc; border: 2px solid #e2e8f0; padding: 20px; margin-bottom: 25px; border-radius: 6px;">
-                                            <h3 style="margin: 0 0 15px 0; color: #1e3a8a; font-size: 18px; font-weight: 700;">
-                                                Vehicle of Interest
-                                            </h3>
-                                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
-                                                <tr>
-                                                    <td style="padding: 8px 0;">
-                                                        <span style="color: #64748b; font-size: 14px; font-weight: 500;">Vehicle:</span>
-                                                        <br>
-                                                        <span style="color: #1e293b; font-size: 17px; font-weight: 700;">
-                                                            ${vehicleDetails?.make} ${vehicleDetails?.model}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="padding: 8px 0;">
-                                                        <span style="color: #64748b; font-size: 14px; font-weight: 500;">Registration:</span>
-                                                        <br>
-                                                        <span style="color: #1e293b; font-size: 16px; font-weight: 600;">
-                                                            ${vehicleDetails?.registration || 'N/A'}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                                ${videoLink ? `
-                                                <tr>
-                                                    <td style="padding: 15px 0 0 0;">
-                                                        <a href="${videoLink}" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
-                                                            ▶ View Video Presentation
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                ` : ''}
-                                            </table>
-                                        </div>
-                                        
-                                        <!-- Action Required -->
-                                        <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 4px;">
-                                            <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 600;">
-                                                ⚡ Action Required: Please contact this customer as soon as possible.
+                                        <!-- Vehicle Information -->
+                                        <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
+                                            <h2 style="margin: 0 0 20px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                Vehicle Interest
+                                            </h2>
+                                            <p style="margin: 0; color: #1a1a1a; font-size: 18px; font-weight: bold;">
+                                                ${vehicleDetails?.make} ${vehicleDetails?.model}
                                             </p>
+                                            <p style="margin: 5px 0 0 0; color: #666666; font-size: 14px;">
+                                                Registration: ${vehicleDetails?.registration || 'N/A'}
+                                            </p>
+                                            ${videoLink ? `
+                                            <p style="margin: 15px 0 0 0;">
+                                                <a href="${videoLink}" style="color: #003366; font-weight: bold; text-decoration: none; font-size: 14px;">
+                                                    View Video Presentation &rarr;
+                                                </a>
+                                            </p>
+                                            ` : ''}
                                         </div>
+                                        
+                                        <p style="margin: 0; color: #666666; font-size: 14px; font-style: italic; text-align: center;">
+                                            Please contact this customer as soon as possible.
+                                        </p>
                                     </td>
                                 </tr>
                                 
                                 <!-- Footer -->
                                 <tr>
-                                    <td style="background-color: #1e3a8a; padding: 20px 30px; text-align: center;">
-                                        <p style="margin: 0; color: #93c5fd; font-size: 12px; line-height: 1.5;">
-                                            © ${new Date().getFullYear()} Heston Automotive. All rights reserved.
-                                        </p>
-                                        <p style="margin: 10px 0 0 0; color: #60a5fa; font-size: 11px;">
-                                            This is an automated notification from your video portal system
+                                    <td style="background-color: #f8f8f8; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
+                                        <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                            &copy; ${new Date().getFullYear()} Heston Automotive Admin System.<br>
+                                            Automated Notification.
                                         </p>
                                     </td>
                                 </tr>
-                                
                             </table>
                         </td>
                     </tr>

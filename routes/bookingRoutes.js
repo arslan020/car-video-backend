@@ -54,40 +54,107 @@ router.post('/', async (req, res) => {
                 to: ['rashid@hestonautomotive.com'],
                 subject: `New Showroom Visit Booking - ${video.registration || 'Vehicle'}`,
                 html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; color: #333;">
-                        <h2 style="color: #2563EB;">New Showroom Visit Booking</h2>
-                        
-                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Customer Details</h3>
-                            <p style="margin: 5px 0;"><strong>Name:</strong> ${customerName}</p>
-                            <p style="margin: 5px 0;"><strong>Email:</strong> ${customerEmail}</p>
-                            <p style="margin: 5px 0;"><strong>Phone:</strong> ${customerPhone}</p>
-                        </div>
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>New Showroom Visit Booking</title>
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f8f8;">
+                            <tr>
+                                <td align="center" style="padding: 40px 0;">
+                                    <!-- Main Container -->
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e5e5;">
+                                        
+                                        <!-- Header with Logo -->
+                                        <tr>
+                                            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Main Content -->
+                                        <tr>
+                                            <td style="padding: 40px;">
+                                                <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 24px; font-weight: normal; text-align: center; letter-spacing: -0.5px;">
+                                                    New Showroom Visit Booking
+                                                </h1>
+                                                
+                                                <p style="margin: 0 0 30px 0; color: #666666; font-size: 14px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                                                    Booking Confirmed
+                                                </p>
+                                                
+                                                <!-- Visit Details -->
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-left: 4px solid #003366; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #003366; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                        Visit Details
+                                                    </h2>
+                                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                                        <tr>
+                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Date:</td>
+                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${formattedDate}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 40%; color: #666666; font-size: 14px;">Time:</td>
+                                                            <td style="color: #1a1a1a; font-size: 16px; font-weight: bold;">${visitTime}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
 
-                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Visit Details</h3>
-                            <p style="margin: 5px 0;"><strong>Date:</strong> ${formattedDate}</p>
-                            <p style="margin: 5px 0;"><strong>Time:</strong> ${visitTime}</p>
-                        </div>
+                                                <!-- Customer Details -->
+                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                        Customer Information
+                                                    </h2>
+                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">${customerName}</p>
+                                                    <p style="margin: 0 0 5px 0; color: #666666; font-size: 14px;">
+                                                        <a href="mailto:${customerEmail}" style="color: #666666; text-decoration: none;">${customerEmail}</a>
+                                                    </p>
+                                                    <p style="margin: 0; color: #666666; font-size: 14px;">
+                                                        <a href="tel:${customerPhone}" style="color: #666666; text-decoration: none;">${customerPhone}</a>
+                                                    </p>
+                                                </div>
 
-                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Vehicle Details</h3>
-                            <p style="margin: 5px 0;"><strong>Registration:</strong> ${video.registration || 'N/A'}</p>
-                            <p style="margin: 5px 0;"><strong>Make:</strong> ${video.make || 'N/A'}</p>
-                            <p style="margin: 5px 0;"><strong>Model:</strong> ${video.model || 'N/A'}</p>
-                        </div>
+                                                <!-- Vehicle Details -->
+                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                        Vehicle of Interest
+                                                    </h2>
+                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                        ${video.make || 'N/A'} ${video.model || 'N/A'}
+                                                    </p>
+                                                    <p style="margin: 0; color: #666666; font-size: 14px;">
+                                                        Registration: ${video.registration || 'N/A'}
+                                                    </p>
+                                                </div>
 
-                        ${notes ? `
-                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Additional Notes</h3>
-                            <p style="margin: 5px 0;">${notes}</p>
-                        </div>
-                        ` : ''}
-
-                        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-                            Booking ID: ${booking._id}
-                        </p>
-                    </div>
+                                                ${notes ? `
+                                                <div style="background-color: #fef3c7; padding: 20px; border-radius: 4px; border-left: 4px solid #f59e0b;">
+                                                    <h3 style="margin: 0 0 10px 0; color: #92400e; font-size: 14px; text-transform: uppercase; font-weight: bold;">Additional Notes</h3>
+                                                    <p style="margin: 0; color: #92400e; font-size: 14px;">${notes}</p>
+                                                </div>
+                                                ` : ''}
+                                                
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Footer -->
+                                        <tr>
+                                            <td style="background-color: #f8f8f8; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
+                                                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                                    Booking ID: ${booking._id}<br>
+                                                    © ${new Date().getFullYear()} Heston Automotive Admin System.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                    </html>
                 `
             });
 
@@ -97,35 +164,99 @@ router.post('/', async (req, res) => {
                 to: [customerEmail],
                 subject: 'Showroom Visit Booking Confirmation - Heston Automotive',
                 html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; color: #333;">
-                        <h2 style="color: #2563EB;">Thank You for Your Booking!</h2>
-                        
-                        <p>Dear ${customerName},</p>
-                        
-                        <p>Your showroom visit has been successfully booked. We look forward to seeing you!</p>
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Showroom Visit Booking Confirmation</title>
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f8f8;">
+                            <tr>
+                                <td align="center" style="padding: 40px 0;">
+                                    <!-- Main Container -->
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border: 1px solid #e5e5e5;">
+                                        
+                                        <!-- Header with Logo -->
+                                        <tr>
+                                            <td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #f0f0f0;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Main Content -->
+                                        <tr>
+                                            <td style="padding: 40px;">
+                                                <h1 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 24px; font-weight: normal; text-align: center; letter-spacing: -0.5px;">
+                                                    Booking Confirmed
+                                                </h1>
+                                                
+                                                <p style="margin: 0 0 30px 0; color: #4a4a4a; font-size: 16px; line-height: 1.6; text-align: center;">
+                                                    Dear ${customerName},<br>
+                                                    We are pleased to confirm your showroom visit.
+                                                </p>
+                                                
+                                                <!-- Visit Details -->
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-left: 4px solid #003366; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 20px 0; color: #003366; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                        Your Visit Details
+                                                    </h2>
+                                                    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                                        <tr>
+                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Date:</td>
+                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${formattedDate}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding-bottom: 10px; width: 40%; color: #666666; font-size: 14px;">Time:</td>
+                                                            <td style="padding-bottom: 10px; color: #1a1a1a; font-size: 16px; font-weight: bold;">${visitTime}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="width: 40%; color: #666666; font-size: 14px;">Vehicle:</td>
+                                                            <td style="color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                                ${video.make || ''} ${video.model || ''}
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
 
-                        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Your Visit Details</h3>
-                            <p style="margin: 5px 0;"><strong>Date:</strong> ${formattedDate}</p>
-                            <p style="margin: 5px 0;"><strong>Time:</strong> ${visitTime}</p>
-                            <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${video.make || ''} ${video.model || ''} ${video.registration ? `(${video.registration})` : ''}</p>
-                        </div>
+                                                <!-- Address and Contact -->
+                                                <div style="background-color: #ffffff; border: 1px solid #e5e5e5; padding: 25px; margin-bottom: 30px;">
+                                                    <h2 style="margin: 0 0 15px 0; color: #4a4a4a; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                                                        Location
+                                                    </h2>
+                                                    <p style="margin: 0 0 5px 0; color: #1a1a1a; font-size: 16px; font-weight: bold;">
+                                                        Heston Automotive Ltd
+                                                    </p>
+                                                    <p style="margin: 0 0 5px 0; color: #666666; font-size: 14px;">
+                                                        Unit 1 Vinyl Pl, Dawley Rd<br>Hayes, UB3 1DA
+                                                    </p>
+                                                    <p style="margin: 15px 0 0 0; color: #666666; font-size: 14px;">
+                                                        <a href="tel:02085648030" style="color: #666666; text-decoration: none; font-weight: bold;">020 8564 8030</a>
+                                                    </p>
+                                                </div>
 
-                        <div style="background-color: #eff6ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563EB;">
-                            <h3 style="margin-top: 0; color: #2563EB;">Showroom Address</h3>
-                            <p style="margin: 5px 0;">Heston Automotive Ltd</p>
-                            <p style="margin: 5px 0;">Unit 1 Vinyl Pl, Dawley Rd, Hayes UB3 1DA</p>
-                            <p style="margin: 5px 0;">Contact: 020 8564 8030</p>
-                        </div>
-
-                        <p>If you need to reschedule or have any questions, please contact us.</p>
-                        
-                        <p style="margin-top: 30px;">Best regards,<br><strong>Heston Automotive Team</strong></p>
-                        
-                        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-                            Booking Reference: ${booking._id}
-                        </p>
-                    </div>
+                                                <p style="margin: 0; color: #4a4a4a; font-size: 15px; line-height: 1.6; text-align: center;">
+                                                    If you need to reschedule or have any questions prior to your visit, please do not hesitate to contact us.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Footer -->
+                                        <tr>
+                                            <td style="background-color: #f8f8f8; padding: 30px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
+                                                <p style="margin: 0; color: #999999; font-size: 12px; line-height: 1.5;">
+                                                    Booking Reference: ${booking._id}<br>
+                                                    © ${new Date().getFullYear()} Heston Automotive. All rights reserved.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                    </html>
                 `
             });
 
