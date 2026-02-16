@@ -59,6 +59,9 @@ const videoSchema = mongoose.Schema({
     reserveCarLink: {
         type: String,
         trim: true
+    },
+    mileage: {
+        type: Number
     }
 }, {
     timestamps: true,

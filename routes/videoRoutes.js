@@ -113,7 +113,9 @@ router.post('/', protect, (req, res, next) => {
                 registration: req.body.registration || undefined,
                 make: req.body.make || undefined,
                 model: req.body.model || undefined,
-                vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined
+                vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
+                mileage: req.body.mileage || undefined,
+                reserveCarLink: req.body.reserveCarLink || undefined
             });
 
             return res.status(201).json(video);
@@ -145,7 +147,9 @@ router.post('/', protect, (req, res, next) => {
             registration: req.body.registration || undefined,
             make: req.body.make || undefined,
             model: req.body.model || undefined,
-            vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined
+            vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
+            mileage: req.body.mileage || undefined,
+            reserveCarLink: req.body.reserveCarLink || undefined
         });
 
         // Clean up temporary file
