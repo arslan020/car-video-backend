@@ -1,5 +1,6 @@
 import express from 'express';
 import Video from '../models/Video.js';
+import AuditLog from '../models/AuditLog.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
@@ -118,6 +119,15 @@ router.post('/', protect, (req, res, next) => {
                 reserveCarLink: req.body.reserveCarLink || undefined
             });
 
+            // Log the upload action
+            await AuditLog.create({
+                action: 'UPLOAD_VIDEO',
+                user: req.user._id,
+                details: `Uploaded YouTube video: ${video.title} (${video.registration || 'No Reg'})`,
+                targetId: video._id,
+                metadata: { registration: video.registration }
+            });
+
             return res.status(201).json(video);
         }
 
@@ -156,6 +166,15 @@ router.post('/', protect, (req, res, next) => {
         if (tempFilePath && fs.existsSync(tempFilePath)) {
             fs.unlinkSync(tempFilePath);
         }
+
+        // Log the upload action
+        await AuditLog.create({
+            action: 'UPLOAD_VIDEO',
+            user: req.user._id,
+            details: `Uploaded video: ${video.title} (${video.registration || 'No Reg'})`,
+            targetId: video._id,
+            metadata: { registration: video.registration }
+        });
 
         res.status(201).json(video);
     } catch (error) {
@@ -259,6 +278,16 @@ router.delete('/:id', protect, async (req, res) => {
         }
 
         await video.deleteOne();
+
+        // Log the delete action
+        await AuditLog.create({
+            action: 'DELETE_VIDEO',
+            user: req.user._id,
+            details: `Deleted video: ${video.title} (${video.registration || 'No Reg'})`,
+            targetId: video._id,
+            metadata: { registration: video.registration }
+        });
+
         res.json({ message: 'Video removed successfully' });
     } catch (error) {
         console.error('Delete video error:', error.message);
