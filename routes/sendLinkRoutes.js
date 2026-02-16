@@ -52,55 +52,76 @@ router.post('/', protect, async (req, res) => {
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Video Presentation - ${vehicleDetails?.make} ${vehicleDetails?.model}</title>
                     </head>
-                    <body style="margin: 0; padding: 0; background-color: #e6f3ff; font-family: 'Segoe UI', Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased;">
-                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #e6f3ff;">
+                    <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: Arial, Helvetica, sans-serif;">
+                        <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
                             <tr>
                                 <td align="center" style="padding: 40px 20px;">
                                     <!-- Main Container -->
-                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+                                    <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                                         
-                                        <!-- Header -->
+                                        <!-- Header with Logo -->
                                         <tr>
-                                            <td style="background-color: #1a1654; padding: 40px 40px; text-align: center;">
-                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto; display: block; margin: 0 auto; filter: brightness(0) invert(1);">
-                                                <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.9;">
-                                                    Premium Vehicle Specialists
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        
-                                        <!-- Vehicle Banner -->
-                                        <tr>
-                                            <td style="background: linear-gradient(135deg, #1a1654 0%, #2a2664 100%); padding: 25px 40px; text-align: center;">
-                                                <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: bold; letter-spacing: 0.5px;">
-                                                    ${vehicleDetails?.make || ''} ${vehicleDetails?.model || ''}
-                                                </h1>
-                                                <p style="margin: 8px 0 0 0; color: #e6f3ff; font-size: 15px;">
-                                                    Your Personalized Video Presentation
-                                                </p>
+                                            <td style="padding: 30px 40px; text-align: center; background-color: #ffffff; border-bottom: 1px solid #e0e0e0;">
+                                                <img src="${process.env.FRONTEND_URL}/business-logo.png" alt="Heston Automotive" style="max-width: 180px; height: auto;">
                                             </td>
                                         </tr>
 
                                         <!-- Main Content -->
                                         <tr>
                                             <td style="padding: 40px;">
-                                                <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
-                                                    Dear <strong style="color: #1a1654;">${greetingName}</strong>,
+                                                <h1 style="margin: 0 0 20px 0; color: #1a1a1a; font-size: 28px; font-weight: 700;">
+                                                    Your Personalized Video Presentation
+                                                </h1>
+                                                
+                                                <p style="margin: 0 0 15px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+                                                    Dear ${greetingName},
                                                 </p>
                                                 
-                                                <p style="margin: 0 0 30px 0; color: #555555; font-size: 15px; line-height: 1.7;">
-                                                    Thank you for your enquiry regarding the <strong style="color: #1a1654;">${vehicleDetails?.make} ${vehicleDetails?.model}</strong>. We're delighted to share a personalized video presentation showcasing this exceptional vehicle.
+                                                <p style="margin: 0 0 25px 0; color: #555555; font-size: 16px; line-height: 1.6;">
+                                                    Thank you for your interest in the <strong style="color: #1a1a1a;">${vehicleDetails?.make} ${vehicleDetails?.model}</strong>. We have prepared a detailed video presentation specifically for you to showcase the features and condition of this vehicle.
                                                 </p>
                                                 
-                                                <!-- CTA Button -->
-                                                <div style="text-align: center; margin: 35px 0;">
-                                                    <a href="${videoLink}" style="display: inline-block; background-color: #1a1654; color: #ffffff; text-decoration: none; padding: 18px 45px; border-radius: 50px; font-size: 16px; font-weight: bold; letter-spacing: 0.8px; box-shadow: 0 4px 15px rgba(26, 22, 84, 0.3); transition: all 0.3s ease;">
-                                                        ▶ WATCH VIDEO PRESENTATION
-                                                    </a>
+                                                <!-- Benefits Box -->
+                                                <div style="background-color: #f8f8f8; padding: 25px; border-radius: 6px; margin-bottom: 30px;">
+                                                    <h3 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 18px; font-weight: 600;">
+                                                        Benefits of viewing
+                                                    </h3>
+                                                    <table role="presentation" style="width: 100%;">
+                                                        <tr>
+                                                            <td style="padding: 5px 0;">
+                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
+                                                                <span style="color: #333333; font-size: 15px;">Detailed walkaround of the vehicle</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px 0;">
+                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
+                                                                <span style="color: #333333; font-size: 15px;">View from the comfort of your home</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding: 5px 0;">
+                                                                <span style="color: #28a745; font-size: 18px; margin-right: 10px;">✓</span>
+                                                                <span style="color: #333333; font-size: 15px;">Hassle free & convenient</span>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
                                                 </div>
                                                 
-                                                <p style="margin: 30px 0 0 0; color: #555555; font-size: 15px; line-height: 1.7; text-align: center;">
-                                                    We would be delighted to arrange a test drive or answer any questions you may have about this vehicle.
+                                                <!-- CTA Button -->
+                                                <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                                                    <tr>
+                                                        <td align="center" style="padding: 10px;">
+                                                            <a href="${videoLink}" style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 16px 48px; font-size: 16px; font-weight: 600; border-radius: 50px;">
+                                                                Watch Video Presentation
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                
+                                                <p style="margin: 0; color: #666666; font-size: 14px; line-height: 1.6; text-align: center;">
+                                                    If you have any questions, please contact us at 
+                                                    <a href="tel:02085648030" style="color: #001d4a; text-decoration: none; font-weight: 600;">020 8564 8030</a>
                                                 </p>
                                             </td>
                                         </tr>

@@ -42,7 +42,7 @@ export async function fetchAllStockFromAutoTrader() {
 
         do {
             const stockResponse = await axios.get(
-                `https://api.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=100&features=true`,
+                `https://api.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=10&features=true`,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
