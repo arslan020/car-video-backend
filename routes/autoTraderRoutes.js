@@ -39,10 +39,11 @@ export async function fetchAllStockFromAutoTrader() {
         let allStock = [];
         let currentPage = 1;
         let totalPages = 1;
+        const PAGE_SIZE = 10;
 
         do {
             const stockResponse = await axios.get(
-                `https://api.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=10&features=true`,
+                `https://api.autotrader.co.uk/stock?advertiserId=${advertiserId}&page=${currentPage}&pageSize=${PAGE_SIZE}&features=true`,
                 {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
@@ -51,15 +52,26 @@ export async function fetchAllStockFromAutoTrader() {
                 }
             );
 
-            if (stockResponse.data.results) {
-                // Stock API with features=true already includes all necessary data
-                allStock = [...allStock, ...stockResponse.data.results];
+            // AutoTrader returns totalResults at the top level
+            if (currentPage === 1) {
+                const totalResults = stockResponse.data.totalResults || stockResponse.data.results?.length || 0;
+                totalPages = Math.ceil(totalResults / PAGE_SIZE);
+                console.log(`[Sync] Total raw vehicles found: ${totalResults}, Total pages to fetch: ${totalPages}`);
             }
 
-            // Update pagination info
-            if (stockResponse.data.page) {
-                totalPages = stockResponse.data.page.totalPages || 1;
-                console.log(`Fetched page ${currentPage} of ${totalPages} (${stockResponse.data.results?.length || 0} vehicles)`);
+            if (stockResponse.data.results) {
+                const pageResults = stockResponse.data.results;
+
+                // Filter for ACTIVE stock only (FORECOURT or DUE_IN)
+                // Discard SOLD, WASTE_BIN, etc.
+                const activeStock = pageResults.filter(vehicle => {
+                    const status = vehicle.metadata?.lifecycleState;
+                    return status === 'FORECOURT' || status === 'DUE_IN';
+                });
+
+                allStock = [...allStock, ...activeStock];
+
+                console.log(`[Sync] Page ${currentPage}/${totalPages}: Fetched ${pageResults.length} vehicles, kept ${activeStock.length} active. (Total active: ${allStock.length})`);
             }
 
             currentPage++;
@@ -140,6 +152,8 @@ router.post('/sync', protect, admin, async (req, res) => {
         res.status(500).json({ message: 'Failed to sync stock' });
     }
 });
+
+
 
 // @desc    Get sync status and last sync time
 // @route   GET /api/autotrader/sync-status
