@@ -15,6 +15,20 @@ export async function fetchAllStockFromAutoTrader() {
 
         console.log(`[${new Date().toISOString()}] Starting AutoTrader stock sync...`);
 
+        // --- CONCURRENCY LOCK ---
+        // Check if sync is already running (within last 10 mins)
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+        const existingLock = await Stock.findOne({
+            advertiserId,
+            syncStatus: 'in_progress',
+            updatedAt: { $gt: tenMinutesAgo }
+        });
+
+        if (existingLock) {
+            console.log(`[Sync] Aborting: Sync already in progress (started at ${existingLock.updatedAt})`);
+            return { success: false, message: 'Sync already in progress' };
+        }
+
         // Update sync status to in_progress
         await Stock.findOneAndUpdate(
             { advertiserId },
@@ -39,7 +53,7 @@ export async function fetchAllStockFromAutoTrader() {
         let allStock = [];
         let currentPage = 1;
         let totalPages = 1;
-        const PAGE_SIZE = 10;
+        const PAGE_SIZE = 100;
 
         do {
             const stockResponse = await axios.get(
@@ -120,9 +134,13 @@ router.get('/stock', protect, async (req, res) => {
 
         // If no stock cached yet, fetch it now
         if (!stockRecord) {
+            console.log('[GET /stock] No cache found, triggering sync...');
             await fetchAllStockFromAutoTrader();
             stockRecord = await Stock.findOne({ advertiserId });
         }
+
+        const count = stockRecord?.stockData?.length || 0;
+        console.log(`[GET /stock] Serving ${count} vehicles from DB`);
 
         res.json({
             results: stockRecord?.stockData || [],
