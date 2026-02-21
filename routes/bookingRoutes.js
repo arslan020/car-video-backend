@@ -2,8 +2,61 @@ import express from 'express';
 import Booking from '../models/Booking.js';
 import Video from '../models/Video.js';
 import { Resend } from 'resend';
+import axios from 'axios';
 
 const router = express.Router();
+
+// Helper: Send SMS via Bird API
+const sendBirdSMS = async (mobile, message) => {
+    const workspaceId = process.env.BIRD_WORKSPACE_ID;
+    const channelId = process.env.BIRD_CHANNEL_ID;
+    const accessKey = process.env.BIRD_ACCESS_KEY;
+
+    if (!workspaceId || !channelId || !accessKey) {
+        console.warn('Bird SMS credentials missing');
+        return;
+    }
+
+    // Normalize phone number to E.164 format
+    let phone = mobile.replace(/\s+/g, '').replace(/-/g, '');
+    if (phone.startsWith('0')) {
+        phone = '+44' + phone.slice(1);
+    } else if (!phone.startsWith('+')) {
+        phone = '+44' + phone;
+    }
+
+    const url = `https://api.bird.com/workspaces/${workspaceId}/channels/${channelId}/messages`;
+
+    const body = {
+        receiver: {
+            contacts: [
+                {
+                    identifierKey: 'phonenumber',
+                    identifierValue: phone
+                }
+            ]
+        },
+        body: {
+            type: 'text',
+            text: { text: message }
+        }
+    };
+
+    try {
+        const response = await axios.post(url, body, {
+            headers: {
+                'Authorization': `AccessKey ${accessKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        const errorDetail = error.response?.data ? JSON.stringify(error.response.data) : error.message;
+        console.error('Bird SMS error:', errorDetail);
+        throw new Error(`Bird API error: ${errorDetail}`);
+    }
+};
 
 // @desc    Create a new booking
 // @route   POST /api/bookings
@@ -392,6 +445,19 @@ router.post('/', async (req, res) => {
             });
 
             console.log(`Booking confirmation emails sent for booking ${booking._id}`);
+
+            // ─────────────────────────────────────────────────
+            // SMS — Confirmation SMS (to Customer)
+            // ─────────────────────────────────────────────────
+            if (customerPhone) {
+                try {
+                    const smsMessage = `Hi ${customerName}, your visit for the ${video.make} ${video.model} is confirmed for ${formattedDate} at ${visitTime}. We look forward to seeing you at Heston Automotive!`;
+                    await sendBirdSMS(customerPhone, smsMessage);
+                    console.log(`Booking confirmation SMS sent to: ${customerPhone}`);
+                } catch (smsError) {
+                    console.error('Failed to send booking SMS:', smsError.message);
+                }
+            }
         } catch (emailError) {
             console.error('Failed to send booking emails:', emailError);
         }
