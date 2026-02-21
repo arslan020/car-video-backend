@@ -1,6 +1,6 @@
 import express from 'express';
 import { Resend } from 'resend';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -14,32 +14,80 @@ const capitalizeWords = (str) => {
         .join(' ');
 };
 
-// @desc    Send video link via email
+// Helper: Send SMS via Bird API
+const sendBirdSMS = async (mobile, message) => {
+    const workspaceId = process.env.BIRD_WORKSPACE_ID;
+    const channelId = process.env.BIRD_CHANNEL_ID;
+    const accessKey = process.env.BIRD_ACCESS_KEY;
+
+    // Normalize phone number to E.164 format
+    let phone = mobile.replace(/\s+/g, '').replace(/-/g, '');
+    if (phone.startsWith('0')) {
+        phone = '+44' + phone.slice(1);
+    } else if (!phone.startsWith('+')) {
+        phone = '+44' + phone;
+    }
+
+    const url = `https://api.bird.com/workspaces/${workspaceId}/channels/${channelId}/messages`;
+
+    const body = {
+        receiver: {
+            contacts: [
+                {
+                    identifierValue: phone
+                }
+            ]
+        },
+        body: {
+            type: 'text',
+            text: { text: message }
+        }
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': `AccessKey ${accessKey}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Bird API error: ${response.status} - ${errorText}`);
+    }
+
+    return await response.json();
+};
+
+// @desc    Send video link via email and/or SMS
 // @route   POST /api/send-link
-// @access  Private/Admin
+// @access  Private
 router.post('/', protect, async (req, res) => {
     try {
-        const { videoLink, email, vehicleDetails, customerName, customerTitle } = req.body;
+        const { videoLink, email, mobile, vehicleDetails, customerName, customerTitle } = req.body;
 
-        if (!email) {
-            return res.status(400).json({ message: 'Please provide an email address' });
+        if (!email && !mobile) {
+            return res.status(400).json({ message: 'Please provide an email address or mobile number' });
         }
 
-        const results = { email: null };
-
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        const results = { email: null, sms: null };
 
         const formattedName = capitalizeWords(customerName);
         const greetingName = formattedName
             ? `${customerTitle ? customerTitle + ' ' : ''}${formattedName}`
             : 'Customer';
 
-        try {
-            const { data, error } = await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
-                to: [email],
-                subject: `Your Video Presentation – ${vehicleDetails?.make} ${vehicleDetails?.model}`,
-                html: `
+        // Send Email (if email provided)
+        if (email) {
+            try {
+                const resend = new Resend(process.env.RESEND_API_KEY);
+                const { data, error } = await resend.emails.send({
+                    from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                    to: [email],
+                    subject: `Your Video Presentation – ${vehicleDetails?.make} ${vehicleDetails?.model}`,
+                    html: `
                     <!DOCTYPE html>
                     <html lang="en">
                     <head>
@@ -153,21 +201,35 @@ router.post('/', protect, async (req, res) => {
                     </body>
                     </html>
                 `
-            });
+                });
 
-            if (error) {
-                console.error('Resend error:', error);
+                if (error) {
+                    console.error('Resend error:', error);
+                    results.email = 'failed';
+                } else {
+                    console.log('Email sent successfully:', data);
+                    results.email = 'sent';
+                }
+            } catch (error) {
+                console.error('Email send error:', error);
                 results.email = 'failed';
-            } else {
-                console.log('Email sent successfully:', data);
-                results.email = 'sent';
             }
-        } catch (error) {
-            console.error('Email send error:', error);
-            results.email = 'failed';
         }
 
-        res.json({ message: 'Email send request processed', results });
+        // Send SMS via Bird (if mobile provided)
+        if (mobile) {
+            try {
+                const smsMessage = `Hi ${greetingName}, here's your personalised video presentation for the ${vehicleDetails?.make} ${vehicleDetails?.model} from Heston Automotive: ${videoLink}`;
+                await sendBirdSMS(mobile, smsMessage);
+                console.log('SMS sent successfully to:', mobile);
+                results.sms = 'sent';
+            } catch (error) {
+                console.error('SMS send error:', error.message);
+                results.sms = 'failed';
+            }
+        }
+
+        res.json({ message: 'Send request processed', results });
 
     } catch (error) {
         console.error('Send link error:', error);
