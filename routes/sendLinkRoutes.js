@@ -34,6 +34,7 @@ const sendBirdSMS = async (mobile, message) => {
         receiver: {
             contacts: [
                 {
+                    identifierKey: 'phonenumber',
                     identifierValue: phone
                 }
             ]
