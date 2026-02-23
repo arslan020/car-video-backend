@@ -223,6 +223,11 @@ router.get('/:id', async (req, res) => {
     try {
         const video = await Video.findById(req.params.id);
         if (video) {
+            // Check if link has expired
+            if (video.linkExpiresAt && new Date() > video.linkExpiresAt) {
+                return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
+            }
+
             video.viewCount = (video.viewCount || 0) + 1;
             await video.save();
             res.json(video);
@@ -253,6 +258,40 @@ router.patch('/:id/reserve-link', protect, admin, async (req, res) => {
     } catch (error) {
         console.error('Update reserve link error:', error.message);
         res.status(500).json({ message: 'Failed to update reserve car link' });
+    }
+});
+
+// @desc    Register a link share (Copy to clipboard)
+// @route   PATCH /api/videos/:id/share
+// @access  Private
+router.patch('/:id/share', protect, async (req, res) => {
+    try {
+        const video = await Video.findById(req.params.id);
+
+        if (!video) {
+            return res.status(404).json({ message: 'Video not found' });
+        }
+
+        // Set expiration to 2 minutes from now
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 2);
+
+        video.linkExpiresAt = expiresAt;
+        await video.save();
+
+        // Log the share action (Try to log even if it's just a copy)
+        await AuditLog.create({
+            action: 'SHARE_VIDEO_LINK',
+            user: req.user._id,
+            details: `Shared video link: ${video.title} (${video.registration || 'No Reg'}). Expiry set to 2 minutes.`,
+            targetId: video._id,
+            metadata: { registration: video.registration, expiresAt }
+        });
+
+        res.json({ message: 'Link sharing registered, expiration set to 4 days', expiresAt });
+    } catch (error) {
+        console.error('Share link error:', error.message);
+        res.status(500).json({ message: 'Failed to register link share' });
     }
 });
 

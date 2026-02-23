@@ -1,6 +1,8 @@
 import express from 'express';
 import { Resend } from 'resend';
 import { protect } from '../middleware/authMiddleware.js';
+import Video from '../models/Video.js';
+import AuditLog from '../models/AuditLog.js';
 
 const router = express.Router();
 
@@ -228,6 +230,29 @@ router.post('/', protect, async (req, res) => {
                 console.error('SMS send error:', error.message);
                 results.sms = 'failed';
             }
+        }
+
+        // Update Video expiration (extract ID from link)
+        try {
+            const videoIdMatch = videoLink.match(/\/view\/([a-f\d]{24})/i);
+            if (videoIdMatch && videoIdMatch[1]) {
+                const videoId = videoIdMatch[1];
+                const expiresAt = new Date();
+                expiresAt.setMinutes(expiresAt.getMinutes() + 2);
+
+                await Video.findByIdAndUpdate(videoId, { linkExpiresAt: expiresAt });
+
+                // Log the send action with expiration
+                await AuditLog.create({
+                    action: 'SEND_VIDEO_LINK',
+                    user: req.user._id,
+                    details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 2 minutes.`,
+                    targetId: videoId,
+                    metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile }
+                });
+            }
+        } catch (updateErr) {
+            console.error('Failed to update video expiration on send:', updateErr);
         }
 
         res.json({ message: 'Send request processed', results });

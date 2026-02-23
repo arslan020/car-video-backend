@@ -62,6 +62,9 @@ const videoSchema = mongoose.Schema({
     },
     mileage: {
         type: Number
+    },
+    linkExpiresAt: {
+        type: Date
     }
 }, {
     timestamps: true,
