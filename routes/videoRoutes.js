@@ -223,9 +223,28 @@ router.get('/:id', optionalProtect, async (req, res) => {
     try {
         const video = await Video.findById(req.params.id);
         if (video) {
-            // Check if link has expired (Skip check for Staff/Admin)
-            if (!req.user && video.linkExpiresAt && new Date() > video.linkExpiresAt) {
-                return res.status(403).json({ message: 'This video link has expired (2-minute limit)' });
+            const shareId = req.query.s;
+            const isStaff = req.user && (req.user.role === 'admin' || req.user.role === 'staff' || req.user.role === 'user');
+
+            // Expiration check for customers (non-staff)
+            if (!isStaff) {
+                if (shareId) {
+                    // Unique link check via AuditLog
+                    try {
+                        const shareLog = await AuditLog.findById(shareId);
+                        if (!shareLog || shareLog.targetId !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
+                            return res.status(403).json({ message: 'Invalid or unauthorized video link' });
+                        }
+                        if (shareLog.metadata?.expiresAt && new Date() > new Date(shareLog.metadata.expiresAt)) {
+                            return res.status(403).json({ message: 'This video link has expired (1-minute limit)' });
+                        }
+                    } catch (err) {
+                        return res.status(403).json({ message: 'Invalid video link' });
+                    }
+                } else if (video.linkExpiresAt && new Date() > video.linkExpiresAt) {
+                    // Legacy fallback
+                    return res.status(403).json({ message: 'This video link has expired (1-minute limit)' });
+                }
             }
 
             video.viewCount = (video.viewCount || 0) + 1;
@@ -272,23 +291,23 @@ router.patch('/:id/share', protect, async (req, res) => {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Set expiration to 2 minutes from now
+        // Set expiration to 1 minute from now
         const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + 2);
+        expiresAt.setMinutes(expiresAt.getMinutes() + 1);
 
         video.linkExpiresAt = expiresAt;
         await video.save();
 
-        // Log the share action (Try to log even if it's just a copy)
-        await AuditLog.create({
+        // Log the share action
+        const log = await AuditLog.create({
             action: 'SHARE_VIDEO_LINK',
             user: req.user._id,
-            details: `Shared video link: ${video.title} (${video.registration || 'No Reg'}). Expiry set to 2 minutes.`,
+            details: `Shared video link: ${video.title} (${video.registration || 'No Reg'}). Expiry set to 1 minute.`,
             targetId: video._id,
             metadata: { registration: video.registration, expiresAt }
         });
 
-        res.json({ message: 'Link sharing registered, expiration set to 4 days', expiresAt });
+        res.json({ message: 'Link sharing registered, expiration set to 1 minute', shareId: log._id, expiresAt });
     } catch (error) {
         console.error('Share link error:', error.message);
         res.status(500).json({ message: 'Failed to register link share' });

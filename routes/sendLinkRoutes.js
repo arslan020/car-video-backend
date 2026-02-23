@@ -82,6 +82,35 @@ router.post('/', protect, async (req, res) => {
             ? `${customerTitle ? customerTitle + ' ' : ''}${formattedName}`
             : 'Customer';
 
+        // 1. Generate Unique Share Token via AuditLog FIRST
+        let shareId = null;
+        let finalVideoLink = videoLink;
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 1);
+
+        try {
+            const videoIdMatch = videoLink.match(/\/view\/([a-f\d]{24})/i);
+            if (videoIdMatch && videoIdMatch[1]) {
+                const videoId = videoIdMatch[1];
+                const log = await AuditLog.create({
+                    action: 'SEND_VIDEO_LINK',
+                    user: req.user._id,
+                    details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 1 minute.`,
+                    targetId: videoId,
+                    metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile }
+                });
+                shareId = log._id;
+
+                // Update legacy field on video
+                await Video.findByIdAndUpdate(videoId, { linkExpiresAt: expiresAt });
+
+                // Append token to link
+                finalVideoLink += (finalVideoLink.includes('?') ? '&' : '?') + `s=${shareId}`;
+            }
+        } catch (err) {
+            console.error('Failed to generate share token:', err);
+        }
+
         // Send Email (if email provided)
         if (email) {
             try {
@@ -156,7 +185,7 @@ router.post('/', protect, async (req, res) => {
                                                             <p style="margin:0 0 20px;color:#555555;font-size:14px;line-height:1.6;">
                                                                 Click below to watch the full video presentation showcasing the features and condition of this vehicle.
                                                             </p>
-                                                            <a href="${videoLink}" style="display:inline-block;background-color:#28a745;color:#ffffff;text-decoration:none;padding:14px 44px;font-size:15px;font-weight:600;border-radius:50px;letter-spacing:0.3px;">
+                                                            <a href="${finalVideoLink}" style="display:inline-block;background-color:#28a745;color:#ffffff;text-decoration:none;padding:14px 44px;font-size:15px;font-weight:600;border-radius:50px;letter-spacing:0.3px;">
                                                                 ▶ &nbsp;Watch Video Presentation
                                                             </a>
                                                         </td>
@@ -222,7 +251,7 @@ router.post('/', protect, async (req, res) => {
         // Send SMS via Bird (if mobile provided)
         if (mobile) {
             try {
-                const smsMessage = `Hi ${greetingName}, here's your personalised video presentation for the ${vehicleDetails?.make} ${vehicleDetails?.model} from Heston Automotive: ${videoLink}`;
+                const smsMessage = `Hi ${greetingName}, here's your personalised video presentation for the ${vehicleDetails?.make} ${vehicleDetails?.model} from Heston Automotive: ${finalVideoLink}`;
                 await sendBirdSMS(mobile, smsMessage);
                 console.log('SMS sent successfully to:', mobile);
                 results.sms = 'sent';
@@ -232,28 +261,7 @@ router.post('/', protect, async (req, res) => {
             }
         }
 
-        // Update Video expiration (extract ID from link)
-        try {
-            const videoIdMatch = videoLink.match(/\/view\/([a-f\d]{24})/i);
-            if (videoIdMatch && videoIdMatch[1]) {
-                const videoId = videoIdMatch[1];
-                const expiresAt = new Date();
-                expiresAt.setMinutes(expiresAt.getMinutes() + 2);
-
-                await Video.findByIdAndUpdate(videoId, { linkExpiresAt: expiresAt });
-
-                // Log the send action with expiration
-                await AuditLog.create({
-                    action: 'SEND_VIDEO_LINK',
-                    user: req.user._id,
-                    details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 2 minutes.`,
-                    targetId: videoId,
-                    metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile }
-                });
-            }
-        } catch (updateErr) {
-            console.error('Failed to update video expiration on send:', updateErr);
-        }
+        // Expiration logic moved to start of process
 
         res.json({ message: 'Send request processed', results });
 
