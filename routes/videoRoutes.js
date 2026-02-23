@@ -1,7 +1,7 @@
 import express from 'express';
 import Video from '../models/Video.js';
 import AuditLog from '../models/AuditLog.js';
-import { protect, admin } from '../middleware/authMiddleware.js';
+import { protect, admin, optionalProtect } from '../middleware/authMiddleware.js';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -219,13 +219,13 @@ router.get('/', protect, async (req, res) => {
 // @desc    Get video by ID (Public)
 // @route   GET /api/videos/:id
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalProtect, async (req, res) => {
     try {
         const video = await Video.findById(req.params.id);
         if (video) {
-            // Check if link has expired
-            if (video.linkExpiresAt && new Date() > video.linkExpiresAt) {
-                return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
+            // Check if link has expired (Skip check for Staff/Admin)
+            if (!req.user && video.linkExpiresAt && new Date() > video.linkExpiresAt) {
+                return res.status(403).json({ message: 'This video link has expired (2-minute limit)' });
             }
 
             video.viewCount = (video.viewCount || 0) + 1;
