@@ -86,7 +86,7 @@ router.post('/', protect, async (req, res) => {
         let shareId = null;
         let finalVideoLink = videoLink;
         const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + 1);
+        expiresAt.setDate(expiresAt.getDate() + 4);
 
         try {
             const videoIdMatch = videoLink.match(/\/view\/([a-f\d]{24})/i);
@@ -95,7 +95,7 @@ router.post('/', protect, async (req, res) => {
                 const log = await AuditLog.create({
                     action: 'SEND_VIDEO_LINK',
                     user: req.user._id,
-                    details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 1 minute.`,
+                    details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 4 days.`,
                     targetId: videoId,
                     metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile }
                 });
@@ -196,6 +196,7 @@ router.post('/', protect, async (req, res) => {
                                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                                     <tr>
                                                         <td style="background-color:#eef4fb;border:1px solid #c5daf0;border-radius:8px;padding:16px 22px;text-align:center;">
+                                                            <p style="font-size: 14px; color: #666;">Note: For security, this link will expire in 4 days.</p>
                                                             <p style="margin:0 0 6px;color:#555555;font-size:13px;">Have questions? We're here to help.</p>
                                                             <p style="margin:0;font-size:13px;">
                                                                 <a href="tel:02085648030" style="color:#5b9bd5;text-decoration:none;font-weight:600;">020 8564 8030</a>

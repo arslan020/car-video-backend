@@ -236,14 +236,14 @@ router.get('/:id', optionalProtect, async (req, res) => {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
                         if (shareLog.metadata?.expiresAt && new Date() > new Date(shareLog.metadata.expiresAt)) {
-                            return res.status(403).json({ message: 'This video link has expired (1-minute limit)' });
+                            return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
                         }
                     } catch (err) {
                         return res.status(403).json({ message: 'Invalid video link' });
                     }
                 } else if (video.linkExpiresAt && new Date() > video.linkExpiresAt) {
                     // Legacy fallback
-                    return res.status(403).json({ message: 'This video link has expired (1-minute limit)' });
+                    return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
                 }
             }
 
@@ -291,9 +291,9 @@ router.patch('/:id/share', protect, async (req, res) => {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Set expiration to 1 minute from now
+        // Set expiration to 4 days from now
         const expiresAt = new Date();
-        expiresAt.setMinutes(expiresAt.getMinutes() + 1);
+        expiresAt.setDate(expiresAt.getDate() + 4);
 
         video.linkExpiresAt = expiresAt;
         await video.save();
@@ -302,12 +302,12 @@ router.patch('/:id/share', protect, async (req, res) => {
         const log = await AuditLog.create({
             action: 'SHARE_VIDEO_LINK',
             user: req.user._id,
-            details: `Shared video link: ${video.title} (${video.registration || 'No Reg'}). Expiry set to 1 minute.`,
+            details: `Shared video link: ${video.title} (${video.registration || 'No Reg'}). Expiry set to 4 days.`,
             targetId: video._id,
             metadata: { registration: video.registration, expiresAt }
         });
 
-        res.json({ message: 'Link sharing registered, expiration set to 1 minute', shareId: log._id, expiresAt });
+        res.json({ message: 'Link sharing registered, expiration set to 4 days', shareId: log._id, expiresAt });
     } catch (error) {
         console.error('Share link error:', error.message);
         res.status(500).json({ message: 'Failed to register link share' });
