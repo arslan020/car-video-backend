@@ -4,7 +4,7 @@ const auditLogSchema = mongoose.Schema({
     action: {
         type: String,
         required: true,
-        enum: ['UPLOAD_VIDEO', 'DELETE_VIDEO', 'UPDATE_VIDEO', 'OTHER']
+        enum: ['UPLOAD_VIDEO', 'DELETE_VIDEO', 'UPDATE_VIDEO', 'SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK', 'OTHER']
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
