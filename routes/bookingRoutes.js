@@ -94,7 +94,7 @@ router.post('/', async (req, res) => {
             // EMAIL 1 — Admin Notification (to Rashid)
             // ─────────────────────────────────────────
             await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: ['rashid@hestonautomotive.com'],
                 subject: `📅 New Booking: ${video.make} ${video.model} — ${formattedDate}`,
                 html: `
@@ -286,7 +286,7 @@ router.post('/', async (req, res) => {
             // EMAIL 2 — Confirmation Email (to Customer)
             // ─────────────────────────────────────────────────
             await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: [customerEmail],
                 subject: `✅ Booking Confirmed – ${video.make} ${video.model} on ${formattedDate}`,
                 html: `

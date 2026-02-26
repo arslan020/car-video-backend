@@ -116,7 +116,7 @@ router.post('/', protect, async (req, res) => {
             try {
                 const resend = new Resend(process.env.RESEND_API_KEY);
                 const { data, error } = await resend.emails.send({
-                    from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                    from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                     to: [email],
                     subject: `Your Video Presentation – ${vehicleDetails?.make} ${vehicleDetails?.model}`,
                     html: `

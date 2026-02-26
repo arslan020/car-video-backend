@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
             const resend = new Resend(process.env.RESEND_API_KEY);
             try {
                 await resend.emails.send({
-                    from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                    from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                     to: [user.email],
                     subject: 'Your Login Verification Code',
                     html: `
@@ -139,7 +139,7 @@ router.post('/staff', protect, admin, async (req, res) => {
 
         try {
             await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: [email],
                 subject: 'Welcome to Heston Automotive - Account Created',
                 html: `
@@ -353,7 +353,7 @@ router.post('/forgot-password', async (req, res) => {
 
         try {
             await resend.emails.send({
-                from: process.env.EMAIL_FROM || 'Heston Automotive <no-reply@hestonautomotive.com>',
+                from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: [user.email],
                 subject: 'Password Reset Request',
                 html: `
