@@ -97,7 +97,7 @@ router.post('/', protect, async (req, res) => {
                     user: req.user._id,
                     details: `Sent video link for ${vehicleDetails?.make} ${vehicleDetails?.model} to ${email || mobile}. Expiry set to 4 days.`,
                     targetId: videoId,
-                    metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile }
+                    metadata: { registration: vehicleDetails?.registration, expiresAt, sentTo: email || mobile, sentToEmail: email || null, sentToMobile: mobile || null, customerName: customerName || null }
                 });
                 shareId = log._id;
 

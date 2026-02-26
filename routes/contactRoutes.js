@@ -1,11 +1,33 @@
 import express from 'express';
 import { Resend } from 'resend';
 import dotenv from 'dotenv';
+import AuditLog from '../models/AuditLog.js';
 
 dotenv.config();
 
 const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// @desc    Get customer info from share token
+// @route   GET /api/contact/customer-info/:shareId
+// @access  Public
+router.get('/customer-info/:shareId', async (req, res) => {
+    try {
+        const log = await AuditLog.findById(req.params.shareId);
+        if (!log || !log.metadata) {
+            return res.status(404).json({ message: 'Customer info not found' });
+        }
+        const { customerName, sentToEmail, sentToMobile, sentTo } = log.metadata;
+        res.json({
+            name: customerName || '',
+            email: sentToEmail || (sentTo && sentTo.includes('@') ? sentTo : '') || '',
+            phone: sentToMobile || (sentTo && !sentTo.includes('@') ? sentTo : '') || ''
+        });
+    } catch (error) {
+        console.error('Error fetching customer info:', error);
+        res.status(500).json({ message: 'Failed to fetch customer info' });
+    }
+});
 
 const capitalizeWords = (str) => {
     if (!str) return str;
@@ -20,10 +42,25 @@ const capitalizeWords = (str) => {
 // @route   POST /api/contact/request-call
 // @access  Public
 router.post('/request-call', async (req, res) => {
-    const { name, phone, vehicleDetails, videoLink } = req.body;
+    let { name, phone, email, vehicleDetails, videoLink, shareId } = req.body;
 
-    if (!name || !phone) {
-        return res.status(400).json({ message: 'Name and Phone Number are required' });
+    // If shareId is provided, look up customer details from AuditLog
+    if (shareId) {
+        try {
+            const log = await AuditLog.findById(shareId);
+            if (log && log.metadata) {
+                const m = log.metadata;
+                if (!name) name = m.customerName || '';
+                if (!email) email = m.sentToEmail || (m.sentTo && m.sentTo.includes('@') ? m.sentTo : '') || '';
+                if (!phone) phone = m.sentToMobile || (m.sentTo && !m.sentTo.includes('@') ? m.sentTo : '') || '';
+            }
+        } catch (err) {
+            console.error('Failed to look up shareId:', err);
+        }
+    }
+
+    if (!name && !phone && !email) {
+        return res.status(400).json({ message: 'Customer contact details are required' });
     }
 
     const formattedName = capitalizeWords(name);
