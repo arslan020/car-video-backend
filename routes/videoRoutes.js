@@ -228,32 +228,33 @@ router.get('/:id', optionalProtect, async (req, res) => {
 
             // Expiration check for customers (non-staff)
             if (!isStaff) {
-                if (shareId) {
+                if (shareId && shareId !== 'undefined' && shareId !== 'null') {
                     // Unique link check via AuditLog
                     try {
                         const shareLog = await AuditLog.findById(shareId);
-                        if (!shareLog || shareLog.targetId !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
+                        if (!shareLog || shareLog.targetId.toString() !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
                         if (shareLog.metadata?.expiresAt && new Date() > new Date(shareLog.metadata.expiresAt)) {
                             return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
                         }
+
+                        // Valid shared link for a customer: Increment View Count
+                        video.viewCount = (video.viewCount || 0) + 1;
+                        await video.save();
+
                     } catch (err) {
-                        return res.status(403).json({ message: 'Invalid video link' });
+                        return res.status(403).json({ message: 'Invalid video link format' });
                     }
                 } else if (video.linkExpiresAt && new Date() > video.linkExpiresAt) {
                     // Legacy fallback
                     return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
+                } else {
+                    // Accessed by non-staff without a valid share token (e.g. direct link)
+                    // We don't increment view count here to preserve accuracy
                 }
-            }
-
-            // Increment view count ONLY if accessed via a shared link (shareId present)
-            // and the user is not staff (avoid inflating counts by staff previews)
-            const requesterIsStaff = req.user && (req.user.role === 'admin' || req.user.role === 'staff');
-
-            if (shareId && shareId.length > 0 && !requesterIsStaff) {
-                video.viewCount = (video.viewCount || 0) + 1;
-                await video.save();
+            } else {
+                // Accessed by staff. We do not increment the view count.
             }
 
             res.json(video);
