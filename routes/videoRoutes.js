@@ -226,6 +226,13 @@ router.get('/debug/logs', (req, res) => {
 // @route   GET /api/videos/:id
 // @access  Public
 router.get('/:id', optionalProtect, async (req, res) => {
+    // INTERCEPT EVERY REQUEST HERE for debugging
+    global.liveDebugLogs = global.liveDebugLogs || [];
+    const _s = req.query.s;
+    const _role = req.user ? req.user.role : 'none';
+    global.liveDebugLogs.push(`[${new Date().toISOString()}] HIT ID:${req.params.id} | s:${_s} | role:${_role}`);
+    if (global.liveDebugLogs.length > 50) global.liveDebugLogs.shift();
+
     try {
         const video = await Video.findById(req.params.id);
         if (video) {
@@ -239,10 +246,7 @@ router.get('/:id', optionalProtect, async (req, res) => {
                     try {
                         const shareLog = await AuditLog.findById(shareId);
 
-                        global.liveDebugLogs = global.liveDebugLogs || [];
-                        global.liveDebugLogs.push(`[LIVE DEBUG] shareId: ${shareId}, targetId: ${shareLog ? shareLog.targetId : 'null'}, req.params.id: ${req.params.id}, action: ${shareLog ? shareLog.action : 'null'}`);
-                        if (global.liveDebugLogs.length > 50) global.liveDebugLogs.shift();
-
+                        global.liveDebugLogs.push(`[VALIDATION] shareId: ${shareId}, targetId: ${shareLog ? shareLog.targetId : 'null'}, req.params.id: ${req.params.id}, action: ${shareLog ? shareLog.action : 'null'}`);
                         if (!shareLog || shareLog.targetId.toString() !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
