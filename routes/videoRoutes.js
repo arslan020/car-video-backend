@@ -216,6 +216,12 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
+// @route GET /api/videos/debug/logs
+// @access Public (Temporary)
+router.get('/debug/logs', (req, res) => {
+    res.json({ logs: global.liveDebugLogs || [] });
+});
+
 // @desc    Get video by ID (Public)
 // @route   GET /api/videos/:id
 // @access  Public
@@ -232,6 +238,11 @@ router.get('/:id', optionalProtect, async (req, res) => {
                     // Unique link check via AuditLog
                     try {
                         const shareLog = await AuditLog.findById(shareId);
+
+                        global.liveDebugLogs = global.liveDebugLogs || [];
+                        global.liveDebugLogs.push(`[LIVE DEBUG] shareId: ${shareId}, targetId: ${shareLog ? shareLog.targetId : 'null'}, req.params.id: ${req.params.id}, action: ${shareLog ? shareLog.action : 'null'}`);
+                        if (global.liveDebugLogs.length > 50) global.liveDebugLogs.shift();
+
                         if (!shareLog || shareLog.targetId.toString() !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
