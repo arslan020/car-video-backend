@@ -89,9 +89,17 @@ router.post('/', protect, async (req, res) => {
         expiresAt.setDate(expiresAt.getDate() + 4);
 
         try {
-            const videoIdMatch = videoLink.match(/\/view\/([a-f\d]{24})/i);
-            if (videoIdMatch && videoIdMatch[1]) {
-                const videoId = videoIdMatch[1];
+            // A more robust way to extract videoId from the URL
+            const urlObj = new URL(videoLink);
+            const pathSegments = urlObj.pathname.split('/');
+            const viewIndex = pathSegments.indexOf('view');
+
+            let videoId = null;
+            if (viewIndex !== -1 && pathSegments.length > viewIndex + 1) {
+                videoId = pathSegments[viewIndex + 1];
+            }
+
+            if (videoId && /^[a-f\d]{24}$/i.test(videoId)) {
                 const log = await AuditLog.create({
                     action: 'SEND_VIDEO_LINK',
                     user: req.user._id,
@@ -105,7 +113,10 @@ router.post('/', protect, async (req, res) => {
                 await Video.findByIdAndUpdate(videoId, { linkExpiresAt: expiresAt });
 
                 // Append token to link
-                finalVideoLink += (finalVideoLink.includes('?') ? '&' : '?') + `s=${shareId}`;
+                urlObj.searchParams.append('s', shareId.toString());
+                finalVideoLink = urlObj.toString();
+            } else {
+                console.error(`Failed to extract videoId from videoLink: ${videoLink}`);
             }
         } catch (err) {
             console.error('Failed to generate share token:', err);

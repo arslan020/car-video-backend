@@ -216,22 +216,12 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
-// @route GET /api/videos/debug/logs
-// @access Public (Temporary)
-router.get('/debug/logs', (req, res) => {
-    res.json({ logs: global.liveDebugLogs || [] });
-});
+
 
 // @desc    Get video by ID (Public)
 // @route   GET /api/videos/:id
 // @access  Public
 router.get('/:id', optionalProtect, async (req, res) => {
-    // INTERCEPT EVERY REQUEST HERE for debugging
-    global.liveDebugLogs = global.liveDebugLogs || [];
-    const _s = req.query.s;
-    const _role = req.user ? req.user.role : 'none';
-    global.liveDebugLogs.push(`[${new Date().toISOString()}] HIT ID:${req.params.id} | s:${_s} | role:${_role}`);
-    if (global.liveDebugLogs.length > 50) global.liveDebugLogs.shift();
 
     try {
         const video = await Video.findById(req.params.id);
@@ -245,8 +235,6 @@ router.get('/:id', optionalProtect, async (req, res) => {
                     // Unique link check via AuditLog
                     try {
                         const shareLog = await AuditLog.findById(shareId);
-
-                        global.liveDebugLogs.push(`[VALIDATION] shareId: ${shareId}, targetId: ${shareLog ? shareLog.targetId : 'null'}, req.params.id: ${req.params.id}, action: ${shareLog ? shareLog.action : 'null'}`);
                         if (!shareLog || shareLog.targetId.toString() !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
