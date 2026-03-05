@@ -247,8 +247,15 @@ router.get('/:id', optionalProtect, async (req, res) => {
                 }
             }
 
-            video.viewCount = (video.viewCount || 0) + 1;
-            await video.save();
+            // Increment view count ONLY if accessed via a shared link (shareId present)
+            // and the user is not staff (avoid inflating counts by staff previews)
+            const requesterIsStaff = req.user && (req.user.role === 'admin' || req.user.role === 'staff');
+
+            if (shareId && shareId.length > 0 && !requesterIsStaff) {
+                video.viewCount = (video.viewCount || 0) + 1;
+                await video.save();
+            }
+
             res.json(video);
         } else {
             res.status(404).json({ message: 'Video not found' });
