@@ -65,6 +65,10 @@ const videoSchema = mongoose.Schema({
     },
     linkExpiresAt: {
         type: Date
+    },
+    thumbnailUrl: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true,

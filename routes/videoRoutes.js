@@ -116,7 +116,8 @@ router.post('/', protect, (req, res, next) => {
                 model: req.body.model || undefined,
                 vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
                 mileage: req.body.mileage || undefined,
-                reserveCarLink: req.body.reserveCarLink || undefined
+                reserveCarLink: req.body.reserveCarLink || undefined,
+                thumbnailUrl: `https://img.youtube.com/vi/${youtubeVideoId}/mqdefault.jpg`
             });
 
             // Log the upload action
@@ -159,7 +160,8 @@ router.post('/', protect, (req, res, next) => {
             model: req.body.model || undefined,
             vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
             mileage: req.body.mileage || undefined,
-            reserveCarLink: req.body.reserveCarLink || undefined
+            reserveCarLink: req.body.reserveCarLink || undefined,
+            thumbnailUrl: cloudflareVideo.thumbnail
         });
 
         // Clean up temporary file
