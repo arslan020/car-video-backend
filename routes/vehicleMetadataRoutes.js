@@ -4,6 +4,19 @@ import { protect, admin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// @desc    Get all vehicle metadata
+// @route   GET /api/vehicle-metadata
+// @access  Private/Staff (or Public depending on needs, but let's make it Public for now since /:registration is Public)
+router.get('/', async (req, res) => {
+    try {
+        const metadata = await VehicleMetadata.find({});
+        res.json(metadata);
+    } catch (error) {
+        console.error('Get all metadata error:', error.message);
+        res.status(500).json({ message: 'Failed to get all vehicle metadata' });
+    }
+});
+
 // @desc    Get vehicle metadata by registration
 // @route   GET /api/vehicle-metadata/:registration
 // @access  Public
