@@ -244,8 +244,16 @@ router.get('/:id', optionalProtect, async (req, res) => {
                             return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
                         }
 
-                        // Valid shared link for a customer: Increment View Count
+                        // Valid shared link for a customer: Increment View Count & record viewer
                         video.viewCount = (video.viewCount || 0) + 1;
+                        video.views = video.views || [];
+                        video.views.push({
+                            shareId: shareLog._id,
+                            viewedAt: new Date(),
+                            viewerName: shareLog.metadata?.customerName || null,
+                            viewerEmail: shareLog.metadata?.sentToEmail || null,
+                            viewerMobile: shareLog.metadata?.sentToMobile || null,
+                        });
                         await video.save();
 
                     } catch (err) {

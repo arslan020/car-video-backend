@@ -69,7 +69,28 @@ const videoSchema = mongoose.Schema({
     thumbnailUrl: {
         type: String,
         trim: true
-    }
+    },
+    views: [
+        {
+            shareId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'AuditLog'
+            },
+            viewedAt: {
+                type: Date,
+                default: Date.now
+            },
+            viewerName: {
+                type: String
+            },
+            viewerEmail: {
+                type: String
+            },
+            viewerMobile: {
+                type: String
+            }
+        }
+    ]
 }, {
     timestamps: true,
 });
