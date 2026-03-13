@@ -196,7 +196,7 @@ router.post('/', protect, async (req, res) => {
                                                             <p style="margin:0 0 20px;color:#555555;font-size:14px;line-height:1.6;">
                                                                 Click below to watch the full video presentation showcasing the features and condition of this vehicle.
                                                             </p>
-                                                            <a href="${finalVideoLink.replace(/&/g, '&amp;')}" style="display:inline-block;background-color:#28a745;color:#ffffff;text-decoration:none;padding:14px 44px;font-size:15px;font-weight:600;border-radius:50px;letter-spacing:0.3px;">
+                                                            <a href="${finalVideoLink}" style="display:inline-block;background-color:#28a745;color:#ffffff;text-decoration:none;padding:14px 44px;font-size:15px;font-weight:600;border-radius:50px;letter-spacing:0.3px;">
                                                                 ▶ &nbsp;Watch Video Presentation
                                                             </a>
                                                         </td>
