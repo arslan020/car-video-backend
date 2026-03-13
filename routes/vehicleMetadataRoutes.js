@@ -40,7 +40,7 @@ router.get('/:registration', async (req, res) => {
 // @desc    Update vehicle reserve link
 // @route   PATCH /api/vehicle-metadata/:registration/reserve-link
 // @access  Private/Admin
-router.patch('/:registration/reserve-link', protect, admin, async (req, res) => {
+router.patch('/:registration/reserve-link', protect, async (req, res) => {
     try {
         const registration = req.params.registration.toUpperCase().trim();
         const { reserveLink } = req.body;
