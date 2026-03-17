@@ -209,6 +209,7 @@ router.get('/', protect, async (req, res) => {
 
         const videos = await Video.find(query)
             .populate('uploadedBy', 'username name')
+            .populate('views.shareId', 'suspended')
             .sort({ createdAt: -1 });
 
         res.json(videos);
