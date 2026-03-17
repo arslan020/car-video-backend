@@ -240,6 +240,10 @@ router.get('/:id', optionalProtect, async (req, res) => {
                         if (!shareLog || shareLog.targetId.toString() !== req.params.id || !['SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK'].includes(shareLog.action)) {
                             return res.status(403).json({ message: 'Invalid or unauthorized video link' });
                         }
+                        // Suspended link check
+                        if (shareLog.suspended) {
+                            return res.status(403).json({ message: 'This video link has been suspended by the dealer.' });
+                        }
                         if (shareLog.metadata?.expiresAt && new Date() > new Date(shareLog.metadata.expiresAt)) {
                             return res.status(403).json({ message: 'This video link has expired (4-day limit)' });
                         }

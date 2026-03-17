@@ -87,4 +87,34 @@ router.get('/weekly-stats', protect, admin, async (req, res) => {
     }
 });
 
+// @desc    Suspend or Enable a share link
+// @route   PATCH /api/audit-logs/:id/suspend
+// @access  Private (Staff/Admin)
+router.patch('/:id/suspend', protect, async (req, res) => {
+    try {
+        const log = await AuditLog.findById(req.params.id);
+        if (!log) {
+            return res.status(404).json({ message: 'Share link not found' });
+        }
+
+        // Only allow toggling SEND_VIDEO_LINK or SHARE_VIDEO_LINK entries
+        if (!['SEND_VIDEO_LINK', 'SHARE_VIDEO_LINK'].includes(log.action)) {
+            return res.status(400).json({ message: 'This entry cannot be suspended' });
+        }
+
+        log.suspended = !log.suspended;
+        await log.save();
+
+        res.json({
+            message: log.suspended ? 'Link suspended successfully' : 'Link enabled successfully',
+            suspended: log.suspended,
+            shareId: log._id
+        });
+    } catch (error) {
+        console.error('Suspend link error:', error);
+        res.status(500).json({ message: 'Failed to toggle link suspension' });
+    }
+});
+
 export default router;
+

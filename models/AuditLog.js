@@ -4,7 +4,7 @@ const auditLogSchema = mongoose.Schema({
     action: {
         type: String,
         required: true,
-        enum: ['UPLOAD_VIDEO', 'DELETE_VIDEO', 'UPDATE_VIDEO', 'SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK', 'OTHER']
+        enum: ['UPLOAD_VIDEO', 'DELETE_VIDEO', 'UPDATE_VIDEO', 'SHARE_VIDEO_LINK', 'SEND_VIDEO_LINK', 'SUSPEND_LINK', 'ENABLE_LINK', 'OTHER']
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -26,6 +26,10 @@ const auditLogSchema = mongoose.Schema({
     ipAddress: {
         type: String,
         required: false
+    },
+    suspended: {
+        type: Boolean,
+        default: false
     }
 }, {
     timestamps: true
