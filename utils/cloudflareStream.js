@@ -124,28 +124,37 @@ export const getDirectUploadUrl = async (options = {}) => {
             throw new Error('Cloudflare Stream credentials not configured');
         }
 
+        // TUS protocol endpoint — supports large files & resumable uploads
         const response = await axios.post(
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
-            {
-                maxDurationSeconds: options.maxDurationSeconds || 3600, // Default 1 hour
-                expiry: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // URL expires in 30 mins
-                requireSignedURLs: false,
-                ...options.metadata ? { meta: options.metadata } : {}
-            },
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream`,
+            {},
             {
                 headers: {
                     'Authorization': `Bearer ${apiToken}`,
-                    'Content-Type': 'application/json'
+                    'Tus-Resumable': '1.0.0',
+                    'Upload-Length': '0',
+                    'Upload-Defer-Length': '1',
+                    'Upload-Metadata': [
+                        `maxdurationseconds ${Buffer.from('21600').toString('base64')}`,
+                        `requiresignedurls ${Buffer.from('false').toString('base64')}`
+                    ].join(','),
                 }
             }
         );
 
-        return response.data.result;
+        const uploadURL = response.headers['location'];
+        if (!uploadURL) throw new Error('No Location header from Cloudflare TUS init');
+
+        const uid = uploadURL.split('/').pop();
+
+        return { uploadURL, uid };
+
     } catch (error) {
-        console.error('Cloudflare Direct Upload URL error:', error.response?.data || error.message);
+        console.error('Cloudflare TUS Upload URL error:', error.response?.data || error.message);
         throw new Error('Failed to generate Cloudflare upload URL');
     }
 };
+
 
 /**
  * Delete video from Cloudflare Stream
