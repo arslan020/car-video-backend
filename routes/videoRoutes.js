@@ -75,6 +75,11 @@ const extractYouTubeId = (input) => {
 // @route   POST /api/videos
 // @access  Private/Staff
 router.post('/', protect, (req, res, next) => {
+    // Set 30-minute timeout for large video uploads
+    req.setTimeout(30 * 60 * 1000);
+    res.setTimeout(30 * 60 * 1000);
+    next();
+}, (req, res, next) => {
     // Only use multer for multipart/form-data (file uploads)
     // Skip multer for application/json (YouTube URL uploads)
     const contentType = req.headers['content-type'] || '';

@@ -51,6 +51,11 @@ const PORT = process.env.PORT || 5000;
 // Start the scheduler
 startScheduler();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+// Increase timeouts for large video uploads (30 minutes)
+server.timeout = 30 * 60 * 1000;          // 30 min request timeout
+server.keepAliveTimeout = 30 * 60 * 1000; // 30 min keep-alive
+server.headersTimeout = 31 * 60 * 1000;   // must be > keepAliveTimeout
