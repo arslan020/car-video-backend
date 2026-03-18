@@ -131,6 +131,7 @@ export const getDirectUploadUrl = async (options = {}) => {
             {
                 maxDurationSeconds: 3600,
                 requireSignedURLs: false,
+                expiry: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min expiry
             },
             {
                 headers: {
