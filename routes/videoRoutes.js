@@ -75,16 +75,18 @@ const extractYouTubeId = (input) => {
 // @access  Private/Staff
 router.get('/upload-url', protect, async (req, res) => {
     try {
-        const result = await getDirectUploadUrl();
-        res.json({
-            uploadURL: result.uploadURL,
-            uid: result.uid
-        });
+        const fileSize = parseInt(req.query.fileSize);
+        if (!fileSize || isNaN(fileSize)) {
+            return res.status(400).json({ message: 'fileSize query param is required' });
+        }
+        const result = await getDirectUploadUrl({ fileSize });
+        res.json({ uploadURL: result.uploadURL, uid: result.uid });
     } catch (error) {
         console.error('Get upload URL error:', error.message);
         res.status(500).json({ message: 'Failed to generate upload URL' });
     }
 });
+
 
 
 

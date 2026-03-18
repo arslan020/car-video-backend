@@ -124,21 +124,36 @@ export const getDirectUploadUrl = async (options = {}) => {
             throw new Error('Cloudflare Stream credentials not configured');
         }
 
+        const fileSize = options.fileSize;
+        if (!fileSize || isNaN(fileSize)) {
+            throw new Error('fileSize is required for Cloudflare TUS upload');
+        }
+
+        // Create a TUS upload session on Cloudflare Stream
+        // Cloudflare requires exact Upload-Length (file size in bytes)
         const response = await axios.post(
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
-            {
-                maxDurationSeconds: 21600,
-                requireSignedURLs: false,
-            },
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream`,
+            {},
             {
                 headers: {
                     'Authorization': `Bearer ${apiToken}`,
-                    'Content-Type': 'application/json',
-                }
+                    'Tus-Resumable': '1.0.0',
+                    'Upload-Length': String(fileSize),
+                    'Upload-Metadata': [
+                        `maxdurationseconds ${Buffer.from('21600').toString('base64')}`,
+                        `requiresignedurls ${Buffer.from('false').toString('base64')}`
+                    ].join(','),
+                },
+                validateStatus: (status) => status === 201 || status === 200,
             }
         );
 
-        const { uploadURL, uid } = response.data.result;
+        const uploadURL = response.headers['location'];
+        if (!uploadURL) throw new Error('No Location header from Cloudflare TUS init');
+
+        const uid = uploadURL.split('/').pop();
+        console.log(`[TUS] Session created: uid=${uid}, size=${fileSize} bytes`);
+
         return { uploadURL, uid };
 
     } catch (error) {
@@ -146,6 +161,7 @@ export const getDirectUploadUrl = async (options = {}) => {
         throw new Error('Failed to generate Cloudflare upload URL');
     }
 };
+
 
 
 
