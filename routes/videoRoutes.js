@@ -75,12 +75,7 @@ const extractYouTubeId = (input) => {
 // @access  Private/Staff
 router.get('/upload-url', protect, async (req, res) => {
     try {
-        const result = await getDirectUploadUrl({
-            metadata: {
-                uploadedBy: req.user._id.toString(),
-                source: 'car-video-portal'
-            }
-        });
+        const result = await getDirectUploadUrl();
         res.json({
             uploadURL: result.uploadURL,
             uid: result.uid
@@ -90,6 +85,8 @@ router.get('/upload-url', protect, async (req, res) => {
         res.status(500).json({ message: 'Failed to generate upload URL' });
     }
 });
+
+
 
 // @desc    Upload a video
 // @route   POST /api/videos

@@ -124,36 +124,30 @@ export const getDirectUploadUrl = async (options = {}) => {
             throw new Error('Cloudflare Stream credentials not configured');
         }
 
-        // TUS protocol endpoint — supports large files & resumable uploads
         const response = await axios.post(
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream`,
-            {},
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
+            {
+                maxDurationSeconds: 21600,
+                requireSignedURLs: false,
+            },
             {
                 headers: {
                     'Authorization': `Bearer ${apiToken}`,
-                    'Tus-Resumable': '1.0.0',
-                    'Upload-Length': '0',
-                    'Upload-Defer-Length': '1',
-                    'Upload-Metadata': [
-                        `maxdurationseconds ${Buffer.from('21600').toString('base64')}`,
-                        `requiresignedurls ${Buffer.from('false').toString('base64')}`
-                    ].join(','),
+                    'Content-Type': 'application/json',
                 }
             }
         );
 
-        const uploadURL = response.headers['location'];
-        if (!uploadURL) throw new Error('No Location header from Cloudflare TUS init');
-
-        const uid = uploadURL.split('/').pop();
-
+        const { uploadURL, uid } = response.data.result;
         return { uploadURL, uid };
 
     } catch (error) {
-        console.error('Cloudflare TUS Upload URL error:', error.response?.data || error.message);
+        console.error('Cloudflare Direct Upload URL error:', error.response?.data || error.message);
         throw new Error('Failed to generate Cloudflare upload URL');
     }
 };
+
+
 
 
 /**
