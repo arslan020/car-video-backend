@@ -124,36 +124,24 @@ export const getDirectUploadUrl = async (options = {}) => {
             throw new Error('Cloudflare Stream credentials not configured');
         }
 
-        const fileSize = options.fileSize;
-        if (!fileSize || isNaN(fileSize)) {
-            throw new Error('fileSize is required for Cloudflare TUS upload');
-        }
-
-        // Create a TUS upload session on Cloudflare Stream
-        // Cloudflare requires exact Upload-Length (file size in bytes)
+        // direct_upload is the CORS-enabled endpoint for browser uploads
+        // TUS /stream endpoint is server-side only (CORS blocked in browser)
         const response = await axios.post(
-            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream`,
-            {},
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
+            {
+                maxDurationSeconds: 3600,
+                requireSignedURLs: false,
+            },
             {
                 headers: {
                     'Authorization': `Bearer ${apiToken}`,
-                    'Tus-Resumable': '1.0.0',
-                    'Upload-Length': String(fileSize),
-                    'Upload-Metadata': [
-                        `maxdurationseconds ${Buffer.from('3600').toString('base64')}`,
-                        `requiresignedurls ${Buffer.from('false').toString('base64')}`
-                    ].join(','),
-                },
-                validateStatus: (status) => status === 201 || status === 200,
+                    'Content-Type': 'application/json',
+                }
             }
         );
 
-        const uploadURL = response.headers['location'];
-        if (!uploadURL) throw new Error('No Location header from Cloudflare TUS init');
-
-        const uid = uploadURL.split('/').pop();
-        console.log(`[TUS] Session created: uid=${uid}, size=${fileSize} bytes`);
-
+        const { uploadURL, uid } = response.data.result;
+        console.log(`[Upload] Direct upload URL created: uid=${uid}`);
         return { uploadURL, uid };
 
     } catch (error) {
@@ -161,6 +149,8 @@ export const getDirectUploadUrl = async (options = {}) => {
         throw new Error('Failed to generate Cloudflare upload URL');
     }
 };
+
+
 
 
 
