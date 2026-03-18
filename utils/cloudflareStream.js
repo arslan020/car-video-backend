@@ -140,7 +140,7 @@ export const getDirectUploadUrl = async (options = {}) => {
                     'Tus-Resumable': '1.0.0',
                     'Upload-Length': String(fileSize),
                     'Upload-Metadata': [
-                        `maxdurationseconds ${Buffer.from('21600').toString('base64')}`,
+                        `maxdurationseconds ${Buffer.from('3600').toString('base64')}`,
                         `requiresignedurls ${Buffer.from('false').toString('base64')}`
                     ].join(','),
                 },
