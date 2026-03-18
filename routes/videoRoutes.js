@@ -182,12 +182,22 @@ router.post('/', protect, (req, res, next) => {
             return res.status(201).json(video);
         }
 
-        // Handle file upload to Cloudflare Stream
-        if (!req.file) {
+        // Handle file upload to Cloudflare Stream (REMOVED FOR DIRECT UPLOAD)
+        if (req.file) {
+            // Clean up temporary file
+            if (req.file.path && fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+            return res.status(400).json({
+                message: 'Browser version outdated. Please hard-refresh your browser (Ctrl + F5) to use the new faster upload method.'
+            });
+        }
+
+        if (!req.file && !youtubeUrl) {
             return res.status(400).json({ message: 'No video file or YouTube URL provided' });
         }
 
-        tempFilePath = req.file.path;
+        tempFilePath = req.file?.path;
         console.log('Uploading to Cloudflare Stream:', tempFilePath);
 
         // Upload to Cloudflare Stream
