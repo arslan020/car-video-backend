@@ -111,6 +111,43 @@ export const uploadToCloudflareStream = async (filePath, metadata = {}) => {
 };
 
 /**
+ * Generate a direct upload URL for Cloudflare Stream
+ * @param {object} options - Upload options (maxDurationSeconds, etc.)
+ * @returns {Promise<object>} - { uploadURL, uid }
+ */
+export const getDirectUploadUrl = async (options = {}) => {
+    try {
+        const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+        const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+
+        if (!accountId || !apiToken) {
+            throw new Error('Cloudflare Stream credentials not configured');
+        }
+
+        const response = await axios.post(
+            `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
+            {
+                maxDurationSeconds: options.maxDurationSeconds || 3600, // Default 1 hour
+                expiry: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // URL expires in 30 mins
+                requireSignedURLs: false,
+                ...options.metadata ? { meta: options.metadata } : {}
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${apiToken}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        return response.data.result;
+    } catch (error) {
+        console.error('Cloudflare Direct Upload URL error:', error.response?.data || error.message);
+        throw new Error('Failed to generate Cloudflare upload URL');
+    }
+};
+
+/**
  * Delete video from Cloudflare Stream
  * @param {string} videoId - Cloudflare Stream video ID
  * @returns {Promise<boolean>} - Success status

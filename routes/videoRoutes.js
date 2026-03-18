@@ -5,7 +5,7 @@ import { protect, admin, optionalProtect } from '../middleware/authMiddleware.js
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import { uploadToCloudflareStream } from '../utils/cloudflareStream.js';
+import { uploadToCloudflareStream, getDirectUploadUrl } from '../utils/cloudflareStream.js';
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -70,6 +70,27 @@ const extractYouTubeId = (input) => {
     return null;
 };
 
+// @desc    Get a direct upload URL for Cloudflare Stream
+// @route   GET /api/videos/upload-url
+// @access  Private/Staff
+router.get('/upload-url', protect, async (req, res) => {
+    try {
+        const result = await getDirectUploadUrl({
+            metadata: {
+                uploadedBy: req.user._id.toString(),
+                source: 'car-video-portal'
+            }
+        });
+        res.json({
+            uploadURL: result.uploadURL,
+            uid: result.uid
+        });
+    } catch (error) {
+        console.error('Get upload URL error:', error.message);
+        res.status(500).json({ message: 'Failed to generate upload URL' });
+    }
+});
+
 // @desc    Upload a video
 // @route   POST /api/videos
 // @access  Private/Staff
@@ -92,11 +113,40 @@ router.post('/', protect, (req, res, next) => {
         console.log('=== VIDEO ROUTE HIT ===');
         console.log('Content-Type:', req.headers['content-type']);
         console.log('Has file:', !!req.file);
-        console.log('youtubeUrl:', req.body?.youtubeUrl);
+        const { youtubeUrl, cloudflareVideoId, videoUrl, thumbnailUrl } = req.body || {};
 
-        const { youtubeUrl } = req.body || {};
+        // 1. Handle Direct Cloudflare Upload (already uploaded by client)
+        if (cloudflareVideoId) {
+            console.log('Registering direct Cloudflare upload:', cloudflareVideoId);
 
-        // Check if YouTube URL is provided
+            const video = await Video.create({
+                uploadedBy: req.user._id,
+                videoUrl: videoUrl || `https://${process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN}/${cloudflareVideoId}/iframe`,
+                videoSource: 'cloudflare',
+                cloudflareVideoId: cloudflareVideoId,
+                title: req.body.title || 'Untitled Video',
+                registration: req.body.registration || undefined,
+                make: req.body.make || undefined,
+                model: req.body.model || undefined,
+                vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
+                mileage: req.body.mileage || undefined,
+                reserveCarLink: req.body.reserveCarLink || undefined,
+                thumbnailUrl: thumbnailUrl || `https://${process.env.CLOUDFLARE_CUSTOMER_SUBDOMAIN}/${cloudflareVideoId}/thumbnails/thumbnail.jpg`
+            });
+
+            // Log the upload action
+            await AuditLog.create({
+                action: 'UPLOAD_VIDEO',
+                user: req.user._id,
+                details: `Uploaded video (direct): ${video.title} (${video.registration || 'No Reg'})`,
+                targetId: video._id,
+                metadata: { registration: video.registration }
+            });
+
+            return res.status(201).json(video);
+        }
+
+        // 2. Handle YouTube URL uploads
         if (youtubeUrl) {
             const youtubeVideoId = extractYouTubeId(youtubeUrl);
 
