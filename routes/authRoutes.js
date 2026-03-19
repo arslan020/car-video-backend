@@ -447,4 +447,37 @@ router.put('/reset-password/:resetToken', async (req, res) => {
     }
 });
 
+// @desc    Get Bird API wallet balance
+// @route   GET /api/auth/bird-balance
+// @access  Private/Admin
+router.get('/bird-balance', protect, admin, async (req, res) => {
+    try {
+        const accessKey = process.env.BIRD_ACCESS_KEY;
+        const workspaceId = process.env.BIRD_WORKSPACE_ID;
+
+        if (!accessKey || !workspaceId) {
+            return res.status(500).json({ message: 'Bird API credentials not configured' });
+        }
+
+        const response = await fetch(`https://api.bird.com/workspaces/${workspaceId}/wallets`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `AccessKey ${accessKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            return res.status(response.status).json({ message: `Bird API error: ${errorText}` });
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('Bird balance error:', error);
+        res.status(500).json({ message: 'Failed to fetch Bird balance' });
+    }
+});
+
 export default router;
