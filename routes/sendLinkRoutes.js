@@ -114,6 +114,11 @@ router.post('/', protect, async (req, res) => {
 
                 // Append token to link
                 urlObj.searchParams.append('s', shareId.toString());
+                // Append sender name so video view page shows correct Sales Executive
+                const senderName = req.user?.name || req.user?.username || '';
+                if (senderName) {
+                    urlObj.searchParams.append('ref', encodeURIComponent(senderName));
+                }
                 finalVideoLink = urlObj.toString();
             } else {
                 console.error(`Failed to extract videoId from videoLink: ${videoLink}`);

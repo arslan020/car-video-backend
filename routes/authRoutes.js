@@ -20,10 +20,15 @@ const generateToken = (id) => {
 // @access  Public
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    // 'username' can be either a username or email address
+    const identifier = username;
 
-    // Case-insensitive username lookup
+    // Try matching either username or email (case-insensitive)
     const user = await User.findOne({
-        username: { $regex: new RegExp(`^${username}$`, 'i') }
+        $or: [
+            { username: { $regex: new RegExp(`^${identifier}$`, 'i') } },
+            { email: { $regex: new RegExp(`^${identifier}$`, 'i') } }
+        ]
     });
 
     if (user && (await user.matchPassword(password))) {
@@ -76,7 +81,7 @@ router.post('/login', async (req, res) => {
             token: generateToken(user._id),
         });
     } else {
-        res.status(401).json({ message: 'Invalid username or password' });
+        res.status(401).json({ message: 'Invalid username/email or password' });
     }
 });
 
