@@ -48,6 +48,9 @@ export const uploadToCloudflareStream = async (filePath, metadata = {}) => {
                 onProgress: (bytesUploaded, bytesTotal) => {
                     const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
                     console.log(`Cloudflare Upload Progress: ${percentage}%`);
+                    if (metadata.onProgress) {
+                        metadata.onProgress(parseFloat(percentage));
+                    }
                 },
                 onSuccess: async () => {
                     try {

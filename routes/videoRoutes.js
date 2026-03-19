@@ -14,6 +14,27 @@ dotenv.config();
 
 const router = express.Router();
 
+// In-memory store for SSE upload progress connections
+// key: jobId, value: { res (SSE response), progress, done, error }
+const progressClients = new Map();
+
+// Helper: send SSE event to a job's client
+const sendProgress = (jobId, data) => {
+    const client = progressClients.get(jobId);
+    if (client && !client.res.writableEnded) {
+        client.res.write(`data: ${JSON.stringify(data)}\n\n`);
+    }
+};
+
+// Helper: close SSE connection
+const closeProgress = (jobId) => {
+    const client = progressClients.get(jobId);
+    if (client && !client.res.writableEnded) {
+        client.res.end();
+    }
+    progressClients.delete(jobId);
+};
+
 // Cloudinary config (keeping for backward compatibility)
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -71,6 +92,28 @@ const extractYouTubeId = (input) => {
     return null;
 };
 
+// @desc    SSE progress stream for a video upload job
+// @route   GET /api/videos/progress/:jobId
+// @access  Private
+router.get('/progress/:jobId', protect, (req, res) => {
+    const { jobId } = req.params;
+
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
+    // Register this SSE connection
+    progressClients.set(jobId, { res });
+
+    // If job already finished before client connected, send final state
+    // (race condition safety)
+    req.on('close', () => {
+        progressClients.delete(jobId);
+    });
+});
+
 // @desc    Upload a video
 // @route   POST /api/videos
 // @access  Private/Staff
@@ -102,7 +145,7 @@ router.post('/', protect, (req, res, next) => {
 
         const { youtubeUrl } = req.body || {};
 
-        // Check if YouTube URL is provided
+        // ── YouTube URL upload (sync, no SSE needed) ──────────────────────────
         if (youtubeUrl) {
             const youtubeVideoId = extractYouTubeId(youtubeUrl);
 
@@ -110,7 +153,6 @@ router.post('/', protect, (req, res, next) => {
                 return res.status(400).json({ message: 'Invalid YouTube URL or video ID' });
             }
 
-            // Create video with YouTube source
             const video = await Video.create({
                 uploadedBy: req.user._id,
                 videoUrl: `https://www.youtube.com/embed/${youtubeVideoId}`,
@@ -126,7 +168,6 @@ router.post('/', protect, (req, res, next) => {
                 thumbnailUrl: `https://img.youtube.com/vi/${youtubeVideoId}/mqdefault.jpg`
             });
 
-            // Log the upload action
             await AuditLog.create({
                 action: 'UPLOAD_VIDEO',
                 user: req.user._id,
@@ -138,68 +179,96 @@ router.post('/', protect, (req, res, next) => {
             return res.status(201).json(video);
         }
 
-        // Handle file upload to Cloudflare Stream
+        // ── File upload (async with SSE progress) ─────────────────────────────
         if (!req.file) {
             return res.status(400).json({ message: 'No video file or YouTube URL provided' });
         }
 
         tempFilePath = req.file.path;
-        console.log('Uploading to Cloudflare Stream:', tempFilePath);
 
-        // Upload to Cloudflare Stream
-        const cloudflareVideo = await uploadToCloudflareStream(tempFilePath, {
-            title: req.body.title || req.file.originalname
-        });
+        // Generate a unique jobId for this upload
+        const jobId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-        console.log('Cloudflare upload successful:', cloudflareVideo.videoId);
+        // Respond immediately with jobId so frontend can open SSE
+        res.status(202).json({ jobId });
 
-        // Create video record in database
-        const video = await Video.create({
-            uploadedBy: req.user._id,
-            videoUrl: cloudflareVideo.videoUrl,
-            videoSource: 'cloudflare',
-            cloudflareVideoId: cloudflareVideo.videoId,
-            originalName: req.file.originalname,
-            title: req.body.title || req.file.originalname,
-            registration: req.body.registration || undefined,
-            make: req.body.make || undefined,
-            model: req.body.model || undefined,
-            vehicleDetails: req.body.vehicleDetails ? JSON.parse(req.body.vehicleDetails) : undefined,
-            mileage: req.body.mileage || undefined,
-            reserveCarLink: req.body.reserveCarLink || undefined,
-            thumbnailUrl: cloudflareVideo.thumbnail
-        });
+        // ── Background: upload to Cloudflare, stream progress via SSE ─────────
+        const userId = req.user._id;
+        const body = req.body;
+        const originalName = req.file.originalname;
 
-        // Clean up temporary file
-        if (tempFilePath && fs.existsSync(tempFilePath)) {
-            fs.unlinkSync(tempFilePath);
+        // Small delay to allow frontend to open SSE connection
+        await new Promise(r => setTimeout(r, 500));
+
+        try {
+            console.log('Uploading to Cloudflare Stream:', tempFilePath);
+
+            const cloudflareVideo = await uploadToCloudflareStream(tempFilePath, {
+                title: body.title || originalName,
+                onProgress: (percentage) => {
+                    sendProgress(jobId, { type: 'progress', percentage });
+                }
+            });
+
+            console.log('Cloudflare upload successful:', cloudflareVideo.videoId);
+
+            const video = await Video.create({
+                uploadedBy: userId,
+                videoUrl: cloudflareVideo.videoUrl,
+                videoSource: 'cloudflare',
+                cloudflareVideoId: cloudflareVideo.videoId,
+                originalName: originalName,
+                title: body.title || originalName,
+                registration: body.registration || undefined,
+                make: body.make || undefined,
+                model: body.model || undefined,
+                vehicleDetails: body.vehicleDetails ? JSON.parse(body.vehicleDetails) : undefined,
+                mileage: body.mileage || undefined,
+                reserveCarLink: body.reserveCarLink || undefined,
+                thumbnailUrl: cloudflareVideo.thumbnail
+            });
+
+            // Clean up temp file
+            if (tempFilePath && fs.existsSync(tempFilePath)) {
+                fs.unlinkSync(tempFilePath);
+            }
+
+            await AuditLog.create({
+                action: 'UPLOAD_VIDEO',
+                user: userId,
+                details: `Uploaded video: ${video.title} (${video.registration || 'No Reg'})`,
+                targetId: video._id,
+                metadata: { registration: video.registration }
+            });
+
+            // Send done event via SSE
+            sendProgress(jobId, { type: 'done', video });
+            closeProgress(jobId);
+
+        } catch (bgError) {
+            console.error('=== BACKGROUND CLOUDFLARE UPLOAD ERROR ===');
+            console.error(bgError.message);
+
+            if (tempFilePath && fs.existsSync(tempFilePath)) {
+                try { fs.unlinkSync(tempFilePath); } catch (_) {}
+            }
+
+            sendProgress(jobId, { type: 'error', message: bgError.message });
+            closeProgress(jobId);
         }
 
-        // Log the upload action
-        await AuditLog.create({
-            action: 'UPLOAD_VIDEO',
-            user: req.user._id,
-            details: `Uploaded video: ${video.title} (${video.registration || 'No Reg'})`,
-            targetId: video._id,
-            metadata: { registration: video.registration }
-        });
-
-        res.status(201).json(video);
     } catch (error) {
         console.error('=== VIDEO UPLOAD ERROR ===');
         console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
 
-        // Clean up temporary file on error
         if (tempFilePath && fs.existsSync(tempFilePath)) {
-            try {
-                fs.unlinkSync(tempFilePath);
-            } catch (cleanupError) {
-                console.error('Failed to clean up temp file:', cleanupError);
-            }
+            try { fs.unlinkSync(tempFilePath); } catch (_) {}
         }
 
-        res.status(500).json({ message: 'Video upload failed', error: error.message });
+        // Only send HTTP error if we haven't responded yet
+        if (!res.headersSent) {
+            res.status(500).json({ message: 'Video upload failed', error: error.message });
+        }
     }
 });
 
