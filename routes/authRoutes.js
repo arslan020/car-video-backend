@@ -264,7 +264,7 @@ router.delete('/staff/:id', protect, admin, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { username, currentPassword, newPassword } = req.body;
+        const { username, email, currentPassword, newPassword } = req.body;
 
         // Find the logged-in user
         const user = await User.findById(req.user._id);
@@ -284,8 +284,8 @@ router.put('/profile', protect, async (req, res) => {
         }
 
         // Check if at least one field is being updated
-        if (!username && !newPassword) {
-            return res.status(400).json({ message: 'Please provide username or new password to update' });
+        if (!username && !email && !newPassword) {
+            return res.status(400).json({ message: 'Please provide username, email, or new password to update' });
         }
 
         // Prepare update object
@@ -299,6 +299,15 @@ router.put('/profile', protect, async (req, res) => {
                 return res.status(400).json({ message: 'Username already taken' });
             }
             updateData.username = username;
+        }
+
+        // Update email if provided
+        if (email && email !== user.email) {
+            const emailExists = await User.findOne({ email, _id: { $ne: user._id } });
+            if (emailExists) {
+                return res.status(400).json({ message: 'Email already in use by another account' });
+            }
+            updateData.email = email;
         }
 
         // Update password if provided
