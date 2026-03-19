@@ -264,7 +264,7 @@ router.delete('/staff/:id', protect, admin, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { username, email, phoneNumber, currentPassword, newPassword } = req.body;
+        const { username, email, name, phoneNumber, currentPassword, newPassword } = req.body;
 
         // Find the logged-in user
         const user = await User.findById(req.user._id);
@@ -284,7 +284,7 @@ router.put('/profile', protect, async (req, res) => {
         }
 
         // Check if at least one field is being updated
-        if (!username && !email && !phoneNumber && !newPassword) {
+        if (!username && !email && !name && !phoneNumber && !newPassword) {
             return res.status(400).json({ message: 'Please provide a field to update' });
         }
 
@@ -293,12 +293,16 @@ router.put('/profile', protect, async (req, res) => {
 
         // Update username if provided
         if (username && username !== user.username) {
-            // Check if username already exists
             const usernameExists = await User.findOne({ username, _id: { $ne: user._id } });
             if (usernameExists) {
                 return res.status(400).json({ message: 'Username already taken' });
             }
             updateData.username = username;
+        }
+
+        // Update name if provided
+        if (name && name !== user.name) {
+            updateData.name = name;
         }
 
         // Update email if provided
@@ -335,6 +339,7 @@ router.put('/profile', protect, async (req, res) => {
         // Return updated user data with new token
         res.json({
             _id: updatedUser._id,
+            name: updatedUser.name,
             username: updatedUser.username,
             email: updatedUser.email,
             phoneNumber: updatedUser.phoneNumber,
