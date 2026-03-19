@@ -18,21 +18,48 @@ const router = express.Router();
 // key: jobId, value: { res (SSE response), progress, done, error }
 const progressClients = new Map();
 
+// Completed jobs cache (for race condition: job finishes before client connects)
+const completedJobs = new Map();
+
 // Helper: send SSE event to a job's client
 const sendProgress = (jobId, data) => {
     const client = progressClients.get(jobId);
     if (client && !client.res.writableEnded) {
-        client.res.write(`data: ${JSON.stringify(data)}\n\n`);
+        client.res.write(`event: progress\ndata: ${JSON.stringify(data)}\n\n`);
     }
 };
 
-// Helper: close SSE connection
+// Helper: send done event and close SSE connection
 const closeProgress = (jobId) => {
     const client = progressClients.get(jobId);
-    if (client && !client.res.writableEnded) {
-        client.res.end();
+    if (client) {
+        if (!client.res.writableEnded) {
+            client.res.write(`event: done\ndata: {}\n\n`);
+            client.res.end();
+        }
+        clearInterval(client.heartbeat);
+        progressClients.delete(jobId);
+    } else {
+        // Client hasn't connected yet — store result for when it does
+        completedJobs.set(jobId, { done: true });
+        setTimeout(() => completedJobs.delete(jobId), 60000); // cleanup after 1 min
     }
-    progressClients.delete(jobId);
+};
+
+// Helper: send error event and close SSE connection
+const sendProgressError = (jobId, message) => {
+    const client = progressClients.get(jobId);
+    if (client) {
+        if (!client.res.writableEnded) {
+            client.res.write(`event: error\ndata: ${JSON.stringify({ message })}\n\n`);
+            client.res.end();
+        }
+        clearInterval(client.heartbeat);
+        progressClients.delete(jobId);
+    } else {
+        completedJobs.set(jobId, { error: true, message });
+        setTimeout(() => completedJobs.delete(jobId), 60000);
+    }
 };
 
 // Cloudinary config (keeping for backward compatibility)
@@ -98,18 +125,41 @@ const extractYouTubeId = (input) => {
 router.get('/progress/:jobId', protect, (req, res) => {
     const { jobId } = req.params;
 
-    // Set SSE headers
+    // Set SSE headers — X-Accel-Buffering: no prevents nginx (Render) from buffering
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');       // disables nginx proxy buffering
+    res.setHeader('Surrogate-Control', 'no-store'); // disables CDN caching
     res.flushHeaders();
 
-    // Register this SSE connection
-    progressClients.set(jobId, { res });
+    // Handle race condition: job already finished before client connected
+    const completed = completedJobs.get(jobId);
+    if (completed) {
+        completedJobs.delete(jobId);
+        if (completed.done) {
+            res.write(`event: done\ndata: {}\n\n`);
+        } else {
+            res.write(`event: error\ndata: ${JSON.stringify({ message: completed.message })}\n\n`);
+        }
+        res.end();
+        return;
+    }
 
-    // If job already finished before client connected, send final state
-    // (race condition safety)
+    // Heartbeat every 15s to keep connection alive through TUS upload pauses
+    const heartbeat = setInterval(() => {
+        if (!res.writableEnded) {
+            res.write(': heartbeat\n\n'); // SSE comment, ignored by browser
+        } else {
+            clearInterval(heartbeat);
+        }
+    }, 15000);
+
+    // Register this SSE connection
+    progressClients.set(jobId, { res, heartbeat });
+
     req.on('close', () => {
+        clearInterval(heartbeat);
         progressClients.delete(jobId);
     });
 });
@@ -206,7 +256,7 @@ router.post('/', protect, (req, res, next) => {
             const cloudflareVideo = await uploadToCloudflareStream(tempFilePath, {
                 title: body.title || originalName,
                 onProgress: (percentage) => {
-                    sendProgress(jobId, { type: 'progress', percentage });
+                    sendProgress(jobId, { percent: percentage });
                 }
             });
 
@@ -242,7 +292,6 @@ router.post('/', protect, (req, res, next) => {
             });
 
             // Send done event via SSE
-            sendProgress(jobId, { type: 'done', video });
             closeProgress(jobId);
 
         } catch (bgError) {
@@ -253,8 +302,7 @@ router.post('/', protect, (req, res, next) => {
                 try { fs.unlinkSync(tempFilePath); } catch (_) {}
             }
 
-            sendProgress(jobId, { type: 'error', message: bgError.message });
-            closeProgress(jobId);
+            sendProgressError(jobId, bgError.message);
         }
 
     } catch (error) {
