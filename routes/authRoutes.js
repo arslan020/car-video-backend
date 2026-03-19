@@ -264,7 +264,7 @@ router.delete('/staff/:id', protect, admin, async (req, res) => {
 // @access  Private
 router.put('/profile', protect, async (req, res) => {
     try {
-        const { username, email, currentPassword, newPassword } = req.body;
+        const { username, email, phoneNumber, currentPassword, newPassword } = req.body;
 
         // Find the logged-in user
         const user = await User.findById(req.user._id);
@@ -284,8 +284,8 @@ router.put('/profile', protect, async (req, res) => {
         }
 
         // Check if at least one field is being updated
-        if (!username && !email && !newPassword) {
-            return res.status(400).json({ message: 'Please provide username, email, or new password to update' });
+        if (!username && !email && !phoneNumber && !newPassword) {
+            return res.status(400).json({ message: 'Please provide a field to update' });
         }
 
         // Prepare update object
@@ -308,6 +308,11 @@ router.put('/profile', protect, async (req, res) => {
                 return res.status(400).json({ message: 'Email already in use by another account' });
             }
             updateData.email = email;
+        }
+
+        // Update phone number if provided
+        if (phoneNumber !== undefined && phoneNumber !== user.phoneNumber) {
+            updateData.phoneNumber = phoneNumber;
         }
 
         // Update password if provided
