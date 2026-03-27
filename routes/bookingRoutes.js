@@ -96,7 +96,20 @@ router.post('/', async (req, res) => {
             await resend.emails.send({
                 from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: ['rashid@hestonautomotive.com'],
-                subject: `📅 New Booking: ${video.make} ${video.model} — ${formattedDate}`,
+                replyTo: process.env.EMAIL_REPLY_TO || 'enquiries@hestonautomotive.com',
+                subject: `New Booking: ${video.make} ${video.model} - ${formattedDate}`,
+                text: `New showroom visit booking received.
+
+Date: ${formattedDate}
+Time: ${visitTime}
+Customer: ${customerName}
+Email: ${customerEmail}
+Phone: ${customerPhone}
+Vehicle: ${video.make || 'N/A'} ${video.model || 'N/A'}
+Registration: ${video.registration || 'N/A'}
+${notes ? `Notes: ${notes}` : ''}
+
+Please prepare for this visit and confirm with the customer.`,
                 html: `
                     <!DOCTYPE html>
                     <html lang="en">
@@ -288,7 +301,25 @@ router.post('/', async (req, res) => {
             await resend.emails.send({
                 from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                 to: [customerEmail],
-                subject: `✅ Booking Confirmed – ${video.make} ${video.model} on ${formattedDate}`,
+                replyTo: process.env.EMAIL_REPLY_TO || 'enquiries@hestonautomotive.com',
+                subject: `Booking Confirmed - ${video.make} ${video.model} on ${formattedDate}`,
+                text: `Hi ${customerName},
+
+Your booking is confirmed.
+
+Date: ${formattedDate}
+Time: ${visitTime}
+Vehicle: ${video.make || ''} ${video.model || ''}
+
+Location:
+Heston Automotive Ltd
+Unit 1 Vinyl Pl, Dawley Rd
+Hayes, UB3 1DA
+
+Need to reschedule?
+Call 020 8564 8030 or email enquiries@hestonautomotive.com.
+
+Booking Reference: ${booking._id}`,
                 html: `
                     <!DOCTYPE html>
                     <html lang="en">

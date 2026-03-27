@@ -134,7 +134,20 @@ router.post('/', protect, async (req, res) => {
                 const { data, error } = await resend.emails.send({
                     from: process.env.EMAIL_FROM || 'Heston Automotive <info@hestonautomotive.com>',
                     to: [email],
+                    replyTo: process.env.EMAIL_REPLY_TO || 'enquiries@hestonautomotive.com',
                     subject: `Your Video Presentation – ${vehicleDetails?.make} ${vehicleDetails?.model}`,
+                    text: `Dear ${greetingName},
+
+Thank you for your interest in the ${vehicleDetails?.make} ${vehicleDetails?.model}.
+
+Watch your video presentation here:
+${finalVideoLink}
+
+For security, this link will expire in 4 days.
+
+If you have any questions, call 020 8564 8030 or email enquiries@hestonautomotive.com.
+
+Heston Automotive`,
                     html: `
                     <!DOCTYPE html>
                     <html lang="en">
