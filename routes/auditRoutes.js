@@ -87,6 +87,29 @@ router.get('/weekly-stats', protect, admin, async (req, res) => {
     }
 });
 
+// @desc    Get today's personal activity counts
+// @route   GET /api/audit-logs/me/today
+// @access  Private (Staff/Admin)
+router.get('/me/today', protect, async (req, res) => {
+    try {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        const end = new Date();
+        end.setHours(23, 59, 59, 999);
+
+        const linksSentToday = await AuditLog.countDocuments({
+            action: 'SEND_VIDEO_LINK',
+            user: req.user._id,
+            createdAt: { $gte: start, $lte: end }
+        });
+
+        res.json({ linksSentToday });
+    } catch (error) {
+        console.error('Error fetching today stats:', error);
+        res.status(500).json({ message: 'Failed to fetch today stats' });
+    }
+});
+
 // @desc    Suspend or Enable a share link
 // @route   PATCH /api/audit-logs/:id/suspend
 // @access  Private (Staff/Admin)
@@ -117,4 +140,3 @@ router.patch('/:id/suspend', protect, async (req, res) => {
 });
 
 export default router;
-
